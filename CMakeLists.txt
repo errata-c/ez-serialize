@@ -6,8 +6,10 @@ LANGUAGES CXX)
 
 find_package(ez-cmake CONFIG REQUIRED)
 
+option(BUILD_TESTS "Build the test executables" ON)
+option(SEPARATE_DIRECTORY "Install the package into its own directory" ON)
+
 add_library(ez-serialize STATIC 
-	"src/Convert.cpp" 
 	"src/serialize.cpp" 
 	"src/deserialize.cpp"
 )
@@ -22,7 +24,13 @@ set_target_properties(ez-serialize PROPERTIES EXPORT_NAME "serialize")
 
 add_library(ez::serialize ALIAS ez-serialize)
 
-set(CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/ez-serialize")
+if(BUILD_TESTS)
+	add_subdirectory("tests")
+endif()
+
+if(SEPARATE_DIRECTORY)
+	set(CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/ez-serialize")
+endif()
 
 install(
 	DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
