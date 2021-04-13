@@ -1,212 +1,212 @@
 #include <ez/deserialize.hpp>
-#include <ez/intern/Convert.hpp>
+#include "Convert.hpp"
 #include <cassert>
+#include <stdexcept>
 
 namespace ez {
-	using namespace intern;
 	namespace deserialize {
-		void string(const std::uint8_t*& read, std::string& ret) {
-			std::uint64_t length = u64(read);
+		void string(const uint8_t*& read, uint8_t const* const end, std::string& ret) {
+			static_assert(sizeof(std::string::value_type) == 1, "Unexpected character size for std::string!");
+
+			uint64_t length = u64(read, end);
+
+			if ((end - read) < length) {
+				throw std::out_of_range("Read range passed into ez::deserialize::string is too small!");
+			}
+
+			uint64_t start = ret.size();
+			ret.resize(ret.size() + length, '\0');
+			uint8_t* write = (uint8_t*)(ret.data() + start);
+
+			const uint8_t* last = read + length;
+			while (read < last) {
+				*write = u8(read, write);
+				++write;
+			}
+		}
+		void string_u8(const uint8_t*& read, uint8_t const* const end, std::basic_string<uint8_t>& ret) {
+			uint64_t bytes = u64(read, end);
+			uint64_t length = bytes / sizeof(uint8_t);
+
+			if ((end - read) < bytes) {
+				throw std::out_of_range("Read range passed into ez::deserialize::string_u8 is too small!");
+			}
+
 			ret.reserve(ret.size() + length);
 
-			const std::uint8_t* end = read + length;
-			while (read < end) {
-				ret.push_back(i8(read));
+			const uint8_t* last = read + length;
+			while (read < last) {
+				ret.push_back(u8(read, end));
+			}
+		}
+		void string_u16(const uint8_t*& read, uint8_t const* const end, std::basic_string<uint16_t>& ret) {
+			uint64_t bytes = u64(read, end);
+			uint64_t length = bytes / sizeof(uint16_t);
+
+			if ((end - read) < bytes) {
+				throw std::out_of_range("Read range passed into ez::deserialize::string_u16 is too small!");
+			}
+
+			ret.reserve(ret.size() + length);
+
+			const uint8_t* last = read + length;
+			while (read < last) {
+				ret.push_back(u16(read, end));
+			}
+		}
+		void string_u32(const uint8_t*& read, uint8_t const* const end, std::basic_string<uint32_t>& ret) {
+			uint64_t bytes = u64(read, end);
+			uint64_t length = bytes / sizeof(uint32_t);
+
+			if ((end - read) < bytes) {
+				throw std::out_of_range("Read range passed into ez::deserialize::string_u32 is too small!");
+			}
+
+			ret.reserve(ret.size() + length);
+
+			const uint8_t* last = read + length;
+			while (read < last) {
+				ret.push_back(u32(read, end));
+			}
+		}
+		void string_u64(const uint8_t*& read, uint8_t const* const end, std::basic_string<uint64_t>& ret) {
+			uint64_t bytes = u64(read, end);
+			uint64_t length = bytes / sizeof(uint64_t);
+
+			if ((end - read) < bytes) {
+				throw std::out_of_range("Read range passed into ez::deserialize::string_u64 is too small!");
+			}
+
+			ret.reserve(ret.size() + length);
+
+			const uint8_t* last = read + length;
+			while (read < last) {
+				ret.push_back(u64(read, end));
 			}
 		}
 
-		void string_u8(const std::uint8_t*& read, std::basic_string<std::uint8_t>& ret) {
-			std::uint64_t length = u64(read);
+		void string_i8(const uint8_t*& read, uint8_t const* const end, std::basic_string<int8_t>& ret) {
+			uint64_t bytes = u64(read, end);
+			uint64_t length = bytes / sizeof(int8_t);
+
+			if ((end - read) < bytes) {
+				throw std::out_of_range("Read range passed into ez::deserialize::string_i8 is too small!");
+			}
+
 			ret.reserve(ret.size() + length);
 
-			const std::uint8_t* end = read + length;
-			while (read < end) {
-				ret.push_back(u8(read));
+			const uint8_t* last = read + length;
+			while (read < last) {
+				ret.push_back(i8(read, end));
 			}
 		}
-		void string_u16(const std::uint8_t*& read, std::basic_string<std::uint16_t>& ret) {
-			std::uint64_t length = u64(read);
-			assert(length % 2 == 0);
+		void string_i16(const uint8_t*& read, uint8_t const* const end, std::basic_string<int16_t>& ret) {
+			uint64_t bytes = u64(read, end);
+			uint64_t length = bytes / sizeof(int16_t);
+
+			if ((end - read) < bytes) {
+				throw std::out_of_range("Read range passed into ez::deserialize::string_i16 is too small!");
+			}
 
 			ret.reserve(ret.size() + length / 2);
 
-			const std::uint8_t* end = read + length;
-			while (read < end) {
-				ret.push_back(u16(read));
+			const uint8_t* last = read + length;
+			while (read < last) {
+				ret.push_back(i16(read, end));
 			}
 		}
-		void string_u32(const std::uint8_t*& read, std::basic_string<std::uint32_t>& ret) {
-			std::uint64_t length = u64(read);
-			assert(length % 4 == 0);
+		void string_i32(const uint8_t*& read, uint8_t const* const end, std::basic_string<int32_t>& ret) {
+			uint64_t bytes = u64(read, end);
+			uint64_t length = bytes / sizeof(int32_t);
 
-			ret.reserve(ret.size() + length / 4);
-
-			const std::uint8_t* end = read + length;
-			while (read < end) {
-				ret.push_back(u32(read));
+			if ((end - read) < bytes) {
+				throw std::out_of_range("Read range passed into ez::deserialize::string_i32 is too small!");
 			}
-		}
-		void string_u64(const std::uint8_t*& read, std::basic_string<std::uint64_t>& ret) {
-			std::uint64_t length = u64(read);
-			assert(length % 8 == 0);
 
-			ret.reserve(ret.size() + length / 8);
-
-			const std::uint8_t* end = read + length;
-			while (read < end) {
-				ret.push_back(u64(read));
-			}
-		}
-
-		void string_i8(const std::uint8_t*& read, std::basic_string<std::int8_t>& ret) {
-			std::uint64_t length = u64(read);
 			ret.reserve(ret.size() + length);
 
-			const std::uint8_t* end = read + length;
-			while (read < end) {
-				ret.push_back(i8(read));
+			const uint8_t* last = read + length;
+			while (read < last) {
+				ret.push_back(i32(read, end));
 			}
 		}
-		void string_i16(const std::uint8_t*& read, std::basic_string<std::int16_t>& ret) {
-			std::uint64_t length = u64(read);
-			assert(length % 2 == 0);
+		void string_i64(const uint8_t*& read, uint8_t const* const end, std::basic_string<int64_t>& ret) {
+			uint64_t bytes = u64(read, end);
+			uint64_t length = bytes / sizeof(int64_t);
 
-			ret.reserve(ret.size() + length / 2);
-
-			const std::uint8_t* end = read + length;
-			while (read < end) {
-				ret.push_back(i16(read));
+			if ((end - read) < bytes) {
+				throw std::out_of_range("Read range passed into ez::deserialize::string_i64 is too small!");
 			}
-		}
-		void string_i32(const std::uint8_t*& read, std::basic_string<std::int32_t>& ret) {
-			std::uint64_t length = u64(read);
-			assert(length % 4 == 0);
-
-			ret.reserve(ret.size() + length / 4);
-
-			const std::uint8_t* end = read + length;
-			while (read < end) {
-				ret.push_back(i32(read));
-			}
-		}
-		void string_i64(const std::uint8_t*& read, std::basic_string<std::int64_t>& ret) {
-			std::uint64_t length = u64(read);
-			assert(length % 8 == 0);
 
 			ret.reserve(ret.size() + length / 8);
 
-			const std::uint8_t* end = read + length;
-			while (read < end) {
-				ret.push_back(i64(read));
+			const uint8_t* last = read + length;
+			while (read < last) {
+				ret.push_back(i64(read, end));
 			}
 		}
 
-		std::string string(const std::uint8_t*& read) {
-			std::uint64_t length = u64(read);
-			std::string ret(length, 0);
+		std::basic_string<uint8_t> string_u8(const uint8_t*& read, uint8_t const* const end) {
+			std::basic_string<uint8_t> ret;
+			deserialize::string_u8(read, end, ret);
 
-			for (auto && val : ret) {
-				val = i8(read);
-			}
+			return ret;
+		}
+		std::basic_string<uint16_t> string_u16(const uint8_t*& read, uint8_t const* const end) {
+			std::basic_string<uint16_t> ret;
+			deserialize::string_u16(read, end, ret);
+
+			return ret;
+		}
+		std::basic_string<uint32_t> string_u32(const uint8_t*& read, uint8_t const* const end) {
+			std::basic_string<uint32_t> ret;
+			string_u32(read, end, ret);
+
+			return ret;
+		}
+		std::basic_string<uint64_t> string_u64(const uint8_t*& read, uint8_t const* const end) {
+			std::basic_string<uint64_t> ret;
+			deserialize::string_u64(read, end, ret);
 
 			return ret;
 		}
 
-		std::basic_string<std::uint8_t> string_u8(const std::uint8_t*& read) {
-			std::uint64_t length = u64(read);
-			std::basic_string<std::uint8_t> ret(length, 0);
-
-			for (auto&& val : ret) {
-				val = u8(read);
-			}
+		std::basic_string<int8_t> string_i8(const uint8_t*& read, uint8_t const* const end) {
+			std::basic_string<int8_t> ret;
+			deserialize::string_i8(read, end, ret);
 
 			return ret;
 		}
-		std::basic_string<std::uint16_t> string_u16(const std::uint8_t*& read) {
-			std::uint64_t length = u64(read);
-			assert(length % 2 == 0);
-
-			std::basic_string<std::uint16_t> ret(length / 2, 0);
-			
-			for (auto&& val : ret) {
-				val = u16(read);
-			}
+		std::basic_string<int16_t> string_i16(const uint8_t*& read, uint8_t const* const end) {
+			std::basic_string<int16_t> ret;
+			deserialize::string_i16(read, end, ret);
 
 			return ret;
 		}
-		std::basic_string<std::uint32_t> string_u32(const std::uint8_t*& read) {
-			std::uint64_t length = u64(read);
-			assert(length % 4 == 0);
-
-			std::basic_string<std::uint32_t> ret(length / 4, 0);
-
-			for (auto&& val : ret) {
-				val = u32(read);
-			}
+		std::basic_string<int32_t> string_i32(const uint8_t*& read, uint8_t const* const end) {
+			std::basic_string<int32_t> ret;
+			deserialize::string_i32(read, end, ret);
 
 			return ret;
 		}
-		std::basic_string<std::uint64_t> string_u64(const std::uint8_t*& read) {
-			std::uint64_t length = u64(read);
-			assert(length % 8 == 0);
+		std::basic_string<int64_t> string_i64(const uint8_t*& read, uint8_t const* const end) {
+			std::basic_string<int64_t> ret;
+			deserialize::string_i64(read, end, ret);
 
-			std::basic_string<std::uint64_t> ret(length / 8, 0);
-
-			for (auto&& val : ret) {
-				val = u64(read);
-			}
+			return ret;
+		}
+		std::string string(const uint8_t*& read, uint8_t const* const end) {
+			std::string ret;
+			deserialize::string(read, end, ret);
 
 			return ret;
 		}
 
-		std::basic_string<std::int8_t> string_i8(const std::uint8_t*& read) {
-			std::uint64_t length = u64(read);
-			std::basic_string<std::int8_t> ret(length, 0);
-
-			for (auto&& val : ret) {
-				val = i8(read);
+		float f32(const uint8_t*& read, uint8_t const* const end) {
+			if ((end - read) < sizeof(float)) {
+				throw std::out_of_range("Read range passed into ez::deserialize::f32 is too small!");
 			}
 
-			return ret;
-		}
-		std::basic_string<std::int16_t> string_i16(const std::uint8_t*& read) {
-			std::uint64_t length = u64(read);
-			assert(length % 2 == 0);
-
-			std::basic_string<std::int16_t> ret(length / 2, 0);
-
-			for (auto&& val : ret) {
-				val = i16(read);
-			}
-
-			return ret;
-		}
-		std::basic_string<std::int32_t> string_i32(const std::uint8_t*& read) {
-			std::uint64_t length = u64(read);
-			assert(length % 4 == 0);
-
-			std::basic_string<std::int32_t> ret(length / 4, 0);
-
-			for (auto&& val : ret) {
-				val = i32(read);
-			}
-
-			return ret;
-		}
-		std::basic_string<std::int64_t> string_i64(const std::uint8_t*& read) {
-			std::uint64_t length = u64(read);
-			assert(length % 8 == 0);
-
-			std::basic_string<std::int64_t> ret(length / 8, 0);
-
-			for (auto&& val : ret) {
-				val = i64(read);
-			}
-
-			return ret;
-		}
-
-		float f32(const std::uint8_t*& read) {
 			Converter32 convert;
 			convert.uintVal = 0;
 			for (int i = 0; i < sizeof(convert.uintVal); ++i) {
@@ -215,7 +215,11 @@ namespace ez {
 			}
 			return convert.floatVal;
 		}
-		double f64(const std::uint8_t*& read) {
+		double f64(const uint8_t*& read, uint8_t const* const end) {
+			if ((end - read) < sizeof(double)) {
+				throw std::out_of_range("Read range passed into ez::deserialize::f64 is too small!");
+			}
+
 			Converter64 convert;
 			convert.uintVal = 0;
 			for (int i = 0; i < sizeof(convert.uintVal); ++i) {
@@ -225,13 +229,21 @@ namespace ez {
 			return convert.floatVal;
 		}
 
-		std::int8_t i8(const std::uint8_t*& read) {
+		int8_t i8(const uint8_t*& read, uint8_t const* const end) {
+			if ((end - read) < sizeof(int8_t)) {
+				throw std::out_of_range("Read range passed into ez::deserialize::i8 is too small!");
+			}
+
 			Converter8 convert;
 			convert.uintVal = *read;
 			++read;
 			return convert.intVal;
 		}
-		std::int16_t i16(const std::uint8_t*& read) {
+		int16_t i16(const uint8_t*& read, uint8_t const* const end) {
+			if ((end - read) < sizeof(int16_t)) {
+				throw std::out_of_range("Read range passed into ez::deserialize::i16 is too small!");
+			}
+
 			Converter16 convert;
 			convert.uintVal = 0;
 			for (int i = 0; i < sizeof(convert.uintVal); ++i) {
@@ -240,7 +252,11 @@ namespace ez {
 			}
 			return convert.intVal;
 		}
-		std::int32_t i32(const std::uint8_t*& read) {
+		int32_t i32(const uint8_t*& read, uint8_t const* const end) {
+			if ((end - read) < sizeof(int32_t)) {
+				throw std::out_of_range("Read range passed into ez::deserialize::i32 is too small!");
+			}
+
 			Converter32 convert;
 			convert.uintVal = 0;
 			for (int i = 0; i < sizeof(convert.uintVal); ++i) {
@@ -249,7 +265,11 @@ namespace ez {
 			}
 			return convert.intVal;
 		}
-		std::int64_t i64(const std::uint8_t*& read) {
+		int64_t i64(const uint8_t*& read, uint8_t const* const end) {
+			if ((end - read) < sizeof(int64_t)) {
+				throw std::out_of_range("Read range passed into ez::deserialize::i64 is too small!");
+			}
+
 			Converter64 convert;
 			convert.uintVal = 0;
 			for (int i = 0; i < sizeof(convert.uintVal); ++i) {
@@ -259,29 +279,45 @@ namespace ez {
 			return convert.intVal;
 		}
 
-		std::uint8_t u8(const std::uint8_t*& read) {
-			std::uint8_t val = *read;
+		uint8_t u8(const uint8_t*& read, uint8_t const* const end) {
+			if ((end - read) < sizeof(uint8_t)) {
+				throw std::out_of_range("Read range passed into ez::deserialize::u8 is too small!");
+			}
+
+			uint8_t val = *read;
 			++read;
 			return val;
 		}
-		std::uint16_t u16(const std::uint8_t*& read) {
-			std::uint16_t val = 0;
+		uint16_t u16(const uint8_t*& read, uint8_t const* const end) {
+			if ((end - read) < sizeof(uint16_t)) {
+				throw std::out_of_range("Read range passed into ez::deserialize::u16 is too small!");
+			}
+
+			uint16_t val = 0;
 			for (int i = 0; i < sizeof(val); ++i) {
 				val |= writeByte16(*read, i);
 				++read;
 			}
 			return val;
 		}
-		std::uint32_t u32(const std::uint8_t*& read) {
-			std::uint32_t val = 0;
+		uint32_t u32(const uint8_t*& read, uint8_t const* const end) {
+			if ((end - read) < sizeof(uint32_t)) {
+				throw std::out_of_range("Read range passed into ez::deserialize::u32 is too small!");
+			}
+
+			uint32_t val = 0;
 			for (int i = 0; i < sizeof(val); ++i) {
 				val |= writeByte32(*read, i);
 				++read;
 			}
 			return val;
 		}
-		std::uint64_t u64(const std::uint8_t*& read) {
-			std::uint64_t val = 0;
+		uint64_t u64(const uint8_t*& read, uint8_t const* const end) {
+			if ((end - read) < sizeof(uint64_t)) {
+				throw std::out_of_range("Read range passed into ez::deserialize::u64 is too small!");
+			}
+
+			uint64_t val = 0;
 			for (int i = 0; i < sizeof(val); ++i) {
 				val |= writeByte64(*read, i);
 				++read;
@@ -289,12 +325,16 @@ namespace ez {
 			return val;
 		}
 
-		void* ptr(const std::uint8_t*& read) {
+		void* ptr(const uint8_t*& read, uint8_t const* const end) {
+			if ((end - read) < sizeof(void*)) {
+				throw std::out_of_range("Read range passed into ez::deserialize::ptr is too small!");
+			}
+
 			if constexpr (sizeof(void*) == 8) {
-				return reinterpret_cast<void*>(u64(read));
+				return reinterpret_cast<void*>(u64(read, end));
 			}
 			else {
-				return reinterpret_cast<void*>(static_cast<std::uintptr_t>(u32(read)));
+				return reinterpret_cast<void*>(static_cast<std::uintptr_t>(u32(read, end)));
 			}
 		}
 	}
