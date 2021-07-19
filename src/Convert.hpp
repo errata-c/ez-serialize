@@ -1,9 +1,13 @@
 #pragma once
 #include <cinttypes>
+#include <vector>
 
 union Converter8 {
 	int8_t intVal;
 	uint8_t uintVal;
+
+	// signed and unsigned char are not the same as char itself
+	char charVal;
 };
 
 union Converter16 {
@@ -32,42 +36,22 @@ union ConverterPtr {
 	const void* cptr;
 };
 
-
-inline uint8_t readByte16(int16_t value, int index) {
-	index <<= 3;
-	return static_cast<uint8_t>((value & (0xFF << index)) >> index);
+template<typename Converter>
+void readConvert(const uint8_t* read, Converter & convert) {
+	convert.uintVal = 0;
+	for (int i = 0; i < sizeof(Converter) * 8; i += 8) {
+		convert.uintVal |= static_cast<decltype(convert.uintVal)>(*read++) << i;
+	}
 }
-inline uint8_t readByte32(int32_t value, int index) {
-	index <<= 3;
-	return static_cast<uint8_t>((value & (0xFF << index)) >> index);
+template<typename Converter>
+void writeConvert(uint8_t* write, const Converter& convert) {
+	for (int i = 0; i < sizeof(Converter) * 8; i += 8) {
+		*write++ = (convert.uintVal & (static_cast<decltype(convert.uintVal)>(0xFF) << i)) >> i;
+	}
 }
-inline uint8_t readByte64(int64_t value, int index) {
-	index <<= 3;
-	return static_cast<uint8_t>((value & (static_cast<int64_t>(0xFF) << index)) >> index);
-}
-
-inline uint8_t readByte16(uint16_t value, int index) {
-	index <<= 3;
-	return static_cast<uint8_t>((value & (0xFF << index)) >> index);
-}
-inline uint8_t readByte32(uint32_t value, int index) {
-	index <<= 3;
-	return static_cast<uint8_t>((value & (0xFF << index)) >> index);
-}
-inline uint8_t readByte64(uint64_t value, int index) {
-	index <<= 3;
-	return static_cast<uint8_t>((value & (static_cast<int64_t>(0xFF) << index)) >> index);
-}
-
-inline uint16_t writeByte16(int byte, int index) {
-	index <<= 3;
-	return byte << index;
-}
-inline uint32_t writeByte32(int byte, int index) {
-	index <<= 3;
-	return byte << index;
-}
-inline uint64_t writeByte64(int64_t byte, int index) {
-	index <<= 3;
-	return byte << index;
+template<typename Converter>
+void writeConvert(std::vector<uint8_t>& write, const Converter& convert) {
+	for (int i = 0; i < sizeof(Converter) * 8; i += 8) {
+		write.push_back((convert.uintVal & (static_cast<decltype(convert.uintVal)>(0xFF) << i)) >> i);
+	}
 }
