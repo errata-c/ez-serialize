@@ -19,6 +19,16 @@ namespace ez {
 		uint8_t* f64(double val, uint8_t* write, uint8_t const* const end);
 		uint8_t* ptr(const void* val, uint8_t* write, uint8_t const* const end);
 
+		uint8_t* string(const std::string& val, uint8_t* write, uint8_t const* const end);
+		uint8_t* string_u8(const std::basic_string<uint8_t>& val, uint8_t* write, uint8_t const* const end);
+		uint8_t* string_u16(const std::basic_string<uint16_t>& val, uint8_t* write, uint8_t const* const end);
+		uint8_t* string_u32(const std::basic_string<uint32_t>& val, uint8_t* write, uint8_t const* const end);
+		uint8_t* string_u64(const std::basic_string<uint64_t>& val, uint8_t* write, uint8_t const* const end);
+		uint8_t* string_i8(const std::basic_string<int8_t>& val, uint8_t* write, uint8_t const* const end);
+		uint8_t* string_i16(const std::basic_string<int16_t>& val, uint8_t* write, uint8_t const* const end);
+		uint8_t* string_i32(const std::basic_string<int32_t>& val, uint8_t* write, uint8_t const* const end);
+		uint8_t* string_i64(const std::basic_string<int64_t>& val, uint8_t* write, uint8_t const* const end);
+
 		void i8(int8_t val, std::vector<uint8_t>& buffer);
 		void i16(int16_t val, std::vector<uint8_t>& buffer);
 		void i32(int32_t val, std::vector<uint8_t>& buffer);
@@ -31,6 +41,15 @@ namespace ez {
 		void f64(double val, std::vector<uint8_t>& buffer);
 		void ptr(const void* val, std::vector<uint8_t>& buffer);
 
+		void string(const std::string& val, std::vector<uint8_t>& buffer);
+		void string_u8(const std::basic_string<uint8_t>& val, std::vector<uint8_t>& buffer);
+		void string_u16(const std::basic_string<uint16_t>& val, std::vector<uint8_t>& buffer);
+		void string_u32(const std::basic_string<uint32_t>& val, std::vector<uint8_t>& buffer);
+		void string_u64(const std::basic_string<uint64_t>& val, std::vector<uint8_t>& buffer);
+		void string_i8(const std::basic_string<int8_t>& val, std::vector<uint8_t>& buffer);
+		void string_i16(const std::basic_string<int16_t>& val, std::vector<uint8_t>& buffer);
+		void string_i32(const std::basic_string<int32_t>& val, std::vector<uint8_t>& buffer);
+		void string_i64(const std::basic_string<int64_t>& val, std::vector<uint8_t>& buffer);
 
 		uint8_t* value(int8_t val, uint8_t* write, uint8_t const* const end);
 		uint8_t* value(int16_t val, uint8_t* write, uint8_t const* const end);
@@ -40,9 +59,18 @@ namespace ez {
 		uint8_t* value(uint16_t val, uint8_t* write, uint8_t const* const end);
 		uint8_t* value(uint32_t val, uint8_t* write, uint8_t const* const end);
 		uint8_t* value(uint64_t val, uint8_t* write, uint8_t const* const end);
-		uint8_t* value(float val, uint8_t* write, uint8_t* end);
-		uint8_t* value(double val, uint8_t* write, uint8_t* end);
-		uint8_t* value(const void* val, uint8_t* write, uint8_t* end);
+		uint8_t* value(float val, uint8_t* write, uint8_t const* const end);
+		uint8_t* value(double val, uint8_t* write, uint8_t const* const end);
+		uint8_t* value(const void* val, uint8_t* write, uint8_t const* const end);
+		uint8_t* value(const std::string& val, uint8_t* write, uint8_t const* const end);
+		uint8_t* value(const std::basic_string<uint8_t>& val, uint8_t* write, uint8_t const* const end);
+		uint8_t* value(const std::basic_string<uint16_t>& val, uint8_t* write, uint8_t const* const end);
+		uint8_t* value(const std::basic_string<uint32_t>& val, uint8_t* write, uint8_t const* const end);
+		uint8_t* value(const std::basic_string<uint64_t>& val, uint8_t* write, uint8_t const* const end);
+		uint8_t* value(const std::basic_string<int8_t>& val, uint8_t* write, uint8_t const* const end);
+		uint8_t* value(const std::basic_string<int16_t>& val, uint8_t* write, uint8_t const* const end);
+		uint8_t* value(const std::basic_string<int32_t>& val, uint8_t* write, uint8_t const* const end);
+		uint8_t* value(const std::basic_string<int64_t>& val, uint8_t* write, uint8_t const* const end);
 
 		void value(int8_t val, std::vector<uint8_t>& buffer);
 		void value(int16_t val, std::vector<uint8_t>& buffer);
@@ -55,34 +83,15 @@ namespace ez {
 		void value(float val, std::vector<uint8_t>& buffer);
 		void value(double val, std::vector<uint8_t>& buffer);
 		void value(const void* val, std::vector<uint8_t>& buffer);
+		void value(const std::string& val, std::vector<uint8_t>& buffer);
+		void value(const std::basic_string<uint8_t>& val, std::vector<uint8_t>& buffer);
+		void value(const std::basic_string<uint16_t>& val, std::vector<uint8_t>& buffer);
+		void value(const std::basic_string<uint32_t>& val, std::vector<uint8_t>& buffer);
+		void value(const std::basic_string<uint64_t>& val, std::vector<uint8_t>& buffer);
+		void value(const std::basic_string<int8_t>& val, std::vector<uint8_t>& buffer);
+		void value(const std::basic_string<int16_t>& val, std::vector<uint8_t>& buffer);
+		void value(const std::basic_string<int32_t>& val, std::vector<uint8_t>& buffer);
+		void value(const std::basic_string<int64_t>& val, std::vector<uint8_t>& buffer);
 
-
-		template<typename T>
-		void string(const std::basic_string<T>& str, std::vector<uint8_t>& buffer) {
-			static_assert(std::is_integral_v<T>, "ez::serialize::string requires a string type with integral value_type!");
-
-			uint64_t bytes = str.size() * sizeof(T);
-			serialize::u64(bytes, buffer);
-
-			for (const T & val: str) {
-				serialize::value(val, buffer);
-			}
-		}
-
-		template<typename T>
-		void string(const std::basic_string<T>& str, uint8_t* write, uint8_t const* const end) {
-			static_assert(std::is_integral_v<T>, "ez::serialize::string requires a string type with integral value_type!");
-
-			uint64_t bytes = str.size() * sizeof(T);
-
-			if ((bytes + sizeof(uint64_t)) > (end - write)) {
-				throw std::out_of_range("ez::serialize::string called with write range smaller than the string being written!");
-			}
-			
-			write = serialize::u64(bytes, write, end);
-			for (const T& val : str) {
-				write = serialize::value(val, write, end);
-			}
-		}
 	};
 };
