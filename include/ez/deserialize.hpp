@@ -25,7 +25,7 @@ namespace ez {
 		const uint8_t* u32(const uint8_t* read, uint8_t const* const end, uint32_t & ret);
 		const uint8_t* u64(const uint8_t* read, uint8_t const* const end, uint64_t & ret);
 		
-		// Only use this function for interprocess or interthread communication.
+		// Only use this function if you know what your doing!
 		// Its a really bad idea to actually save a pointer to file.
 		const uint8_t* ptr(const uint8_t* read, uint8_t const* const end, void*& ptr);
 	};
