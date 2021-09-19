@@ -184,6 +184,8 @@ namespace ez {
 				read = i64(read, end, val);
 				ret.push_back(val);
 			}
+			
+			return read;
 		}
 
 		const uint8_t* f32(const uint8_t* read, uint8_t const* const end, float & ret) {
