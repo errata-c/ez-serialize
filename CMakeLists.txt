@@ -1,16 +1,14 @@
 cmake_minimum_required(VERSION 3.15)
 
 project(EZ_SERIALIZE
-	VERSION 0.3.0
+	VERSION 0.3.1
 	LANGUAGES CXX
 )
 
-option(BUILD_TESTS "Build the test executables" ON)
-option(SEPARATE_DIRECTORY "Install the package into its own directory" ON)
-set(CONFIG_DIR "${CMAKE_INSTALL_DATAROOTDIR}/ez-serialize" CACHE STRING "The relative directory to install package config files.")
+option(EZ_SERIALIZE_BUILD_TESTS "Build the test executables" OFF)
+set(EZ_SERIALIZE_CONFIG_DIR "share/ez-serialize" CACHE STRING "The relative directory to install package config files.")
 
 
-include(GNUInstallDirs)
 include(FetchContent)
 
 FetchContent_Declare(
@@ -37,15 +35,9 @@ set_target_properties(ez-serialize PROPERTIES EXPORT_NAME "serialize")
 add_library(ez::serialize ALIAS ez-serialize)
 
 
-
-if(BUILD_TESTS)
+if(EZ_SERIALIZE_BUILD_TESTS)
 	add_subdirectory("tests")
 endif()
-
-if(SEPARATE_DIRECTORY)
-	set(CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/ez-serialize")
-endif()
-
 
 
 install(
@@ -64,7 +56,7 @@ install_package(
 	NAME "ez-serialize"
 	NAMESPACE "ez::"
 	EXPORT "ez-serialize-targets"
-	DESTINATION "${CONFIG_DIR}"
+	DESTINATION "${EZ_SERIALIZE_CONFIG_DIR}"
 	COMPATIBILITY "SameMajorVersion"
 	VERSION "${EZ_SERIALIZE_VERSION}"
 )
