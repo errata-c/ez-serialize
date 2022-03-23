@@ -6,20 +6,21 @@ union Converter32 {
 	int32_t intVal;
 	uint32_t uintVal;
 	float floatVal;
-	uint8_t bytes[sizeof(intVal)];
+	char data[4];
 };
 
 union Converter64 {
 	int64_t intVal;
 	uint64_t uintVal;
 	double floatVal;
-	uint8_t bytes[sizeof(intVal)];
+	char data[8];
 };
 
 union ConverterPtr {
 	uintptr_t uintVal;
 	void* ptr;
 	const void* cptr;
+	char data[sizeof(void*)];
 };
 
 template<typename itype>

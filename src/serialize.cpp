@@ -1,5 +1,5 @@
 #include <ez/serialize.hpp>
-#include "Convert.hpp"
+#include <ez/intern/Convert.hpp>
 
 #include <cassert>
 
@@ -96,14 +96,18 @@ namespace ez::serialize {
 
 		Converter32 convert;
 		convert.floatVal = val;
-		return u32(convert.uintVal, write, end);
+		writeConvert(write, convert.uintVal);
+
+		return write + sizeof(convert);
 	}
 	char* f64(double val, char* write, char const* const end) {
 		assert((end - write) >= sizeof(val));
 
 		Converter64 convert;
 		convert.floatVal = val;
-		return u64(convert.uintVal, write, end);
+		writeConvert(write, convert.uintVal);
+
+		return write + sizeof(convert);
 	}
 	char* ptr(const void* val, char* write, char const* const end) {
 		assert((end - write) >= sizeof(val));

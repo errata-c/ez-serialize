@@ -1,5 +1,6 @@
 #include <ez/deserialize.hpp>
-#include "Convert.hpp"
+#include <ez/intern/Convert.hpp>
+
 #include <cassert>
 #include <stdexcept>
 #include <limits.h>
@@ -12,7 +13,7 @@ namespace ez::deserialize {
 		read = u64(read, end, length);
 
 		assert((end - read) >= length);
-			
+		
 		ret.reserve(ret.size() + length);
 
 		const char* last = read + length;
@@ -161,26 +162,32 @@ namespace ez::deserialize {
 			read = i64(read, end, val);
 			ret.push_back(val);
 		}
-			
+		
 		return read;
 	}
 
 	const char* f32(const char* read, char const* const end, float & ret) {
 		assert((end - read) >= sizeof(float));
 
-		Converter32 convert;
-		read = readConvert<uint32_t>(read, convert.uintVal);
+		uint32_t ival;
+		read = readConvert(read, ival);
 
+		Converter32 convert;
+		convert.uintVal = ival;
 		ret = convert.floatVal;
+
 		return read;
 	}
 	const char* f64(const char* read, char const* const end, double & ret) {
 		assert((end - read) >= sizeof(double));
 
-		Converter64 convert;
-		read = readConvert<uint64_t>(read, convert.uintVal);
+		uint64_t ival;
+		read = readConvert(read, ival);
 
+		Converter64 convert;
+		convert.uintVal = ival;
 		ret = convert.floatVal;
+
 		return read;
 	}
 
