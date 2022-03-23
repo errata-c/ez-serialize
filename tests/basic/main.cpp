@@ -5,11 +5,11 @@
 #include <ez/deserialize.hpp>
 
 TEST_CASE("basic") {
-	std::vector<uint8_t> buffer;
+	std::string buffer;
 	buffer.resize(32, 0);
 
-	uint8_t * data = buffer.data();
-	const uint8_t* const end = data + buffer.size();
+	char * data = buffer.data();
+	const char* const end = data + buffer.size();
 
 	SECTION("uint8_t") {
 		uint8_t val = 0x55;

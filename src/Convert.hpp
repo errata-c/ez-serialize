@@ -2,20 +2,6 @@
 #include <cinttypes>
 #include <vector>
 
-union Converter8 {
-	int8_t intVal;
-	uint8_t uintVal;
-
-	// signed and unsigned char are not the same as char itself
-	char charVal;
-};
-
-union Converter16 {
-	int16_t intVal;
-	uint16_t uintVal;
-	uint8_t bytes[sizeof(intVal)];
-};
-
 union Converter32 {
 	int32_t intVal;
 	uint32_t uintVal;
@@ -36,22 +22,23 @@ union ConverterPtr {
 	const void* cptr;
 };
 
-template<typename Converter>
-void readConvert(const uint8_t* read, Converter & convert) {
-	convert.uintVal = 0;
-	for (int i = 0; i < sizeof(Converter) * 8; i += 8) {
-		convert.uintVal |= static_cast<decltype(convert.uintVal)>(*read++) << i;
+template<typename itype>
+const char* readConvert(const char* read, itype & ret) {
+	ret = 0;
+	for (int i = 0; i < sizeof(itype) * 8; i += 8) {
+		ret |= itype(*read++) << i;
+	}
+	return read;
+}
+template<typename itype>
+void writeConvert(char* write, itype value) {
+	for (int i = 0; i < sizeof(itype) * 8; i += 8) {
+		*write++ = (value & (itype(0xFF) << i)) >> i;
 	}
 }
-template<typename Converter>
-void writeConvert(uint8_t* write, const Converter& convert) {
-	for (int i = 0; i < sizeof(Converter) * 8; i += 8) {
-		*write++ = (convert.uintVal & (static_cast<decltype(convert.uintVal)>(0xFF) << i)) >> i;
-	}
-}
-template<typename Converter>
-void writeConvert(std::vector<uint8_t>& write, const Converter& convert) {
-	for (int i = 0; i < sizeof(Converter) * 8; i += 8) {
-		write.push_back((convert.uintVal & (static_cast<decltype(convert.uintVal)>(0xFF) << i)) >> i);
+template<typename itype>
+void writeConvert(std::string& write, itype value) {
+	for (int i = 0; i < sizeof(itype) * 8; i += 8) {
+		write.push_back((value & (itype(0xFF) << i)) >> i);
 	}
 }

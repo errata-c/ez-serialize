@@ -7,11 +7,11 @@ static void BM_SerializeI32(benchmark::State& state) {
     std::size_t byteCount = state.range(0) * sizeof(int32_t);
     std::size_t count = state.range(0);
 
-    uint8_t* dest = new uint8_t[byteCount];
+    char* dest = new char[byteCount];
 
     for (auto _ : state) {
-        uint8_t* write = dest;
-        uint8_t* end = dest + byteCount;
+        char* write = dest;
+        char* end = dest + byteCount;
         int32_t val = 0;
 
         for (std::size_t i = 0; i < count; ++i) {
@@ -31,11 +31,11 @@ static void BM_SerializeI64(benchmark::State& state) {
     std::size_t byteCount = state.range(0) * sizeof(int64_t);
     std::size_t count = state.range(0);
 
-    uint8_t* dest = new uint8_t[byteCount];
+    char* dest = new char[byteCount];
 
     for (auto _ : state) {
-        uint8_t* write = dest;
-        uint8_t* end = dest + byteCount;
+        char* write = dest;
+        char* end = dest + byteCount;
         int64_t val = 0;
 
         for (std::size_t i = 0; i < count; ++i) {

@@ -10,506 +10,494 @@
 // Going to have to check the specs to see if this is a valid implementation, don't want any undefined
 // behaviour.
 
-namespace ez {
-	namespace serialize {
-		
+namespace ez::serialize {
+	char* i8(int8_t val, char* write, char const* const end) {
+		assert((end - write) >= sizeof(val));
 
-		uint8_t* i8(int8_t val, uint8_t* write, uint8_t const* const end) {
-			assert((end - write) >= sizeof(val));
+		*write++ = val;
 
-			*write++ = val;
+		return write;
+	}
+	char* i16(int16_t val, char* write, char const* const end) {
+		assert((end - write) >= sizeof(val));
 
-			return write;
+		*write++ = (val & 0xFF);
+		*write++ = ((val & 0xFF00) >> 8);
+
+		return write;
+	}
+	char* i32(int32_t val, char* write, char const* const end) {
+		assert((end - write) >= sizeof(val));
+
+		*write++ = (val & 0xFF);
+		*write++ = ((val & 0xFF00) >> 8);
+		*write++ = ((val & 0xFF0000) >> 16);
+		*write++ = ((val & 0xFF000000) >> 24);
+
+		return write;
+	}
+	char* i64(int64_t val, char* write, char const* const end) {
+		assert((end - write) >= sizeof(val));
+
+		*write++ = (val & 0xFF);
+		*write++ = ((val & 0xFF00) >> 8);
+		*write++ = ((val & 0xFF0000) >> 16);
+		*write++ = ((val & 0xFF000000) >> 24);
+
+		*write++ = ((val & 0xFF000000'00) >> 32);
+		*write++ = ((val & 0xFF000000'0000) >> 40);
+		*write++ = ((val & 0xFF000000'000000) >> 48);
+		*write++ = ((val & 0xFF000000'00000000) >> 56);
+
+		return write;
+	}
+	char* u8(uint8_t val, char* write, char const* const end) {
+		assert((end - write) >= sizeof(val));
+
+		*write++ = val;
+
+		return write;
+	}
+	char* u16(uint16_t val, char* write, char const* const end) {
+		assert((end - write) >= sizeof(val));
+
+		*write++ = (val & 0xFF);
+		*write++ = ((val & 0xFF00) >> 8);
+
+		return write;
+	}
+	char* u32(uint32_t val, char* write, char const* const end) {
+		assert((end - write) >= sizeof(val));
+
+		*write++ = (val & 0xFF);
+		*write++ = ((val & 0xFF00) >> 8);
+		*write++ = ((val & 0xFF0000) >> 16);
+		*write++ = ((val & 0xFF000000) >> 24);
+
+		return write;
+	}
+	char* u64(uint64_t val, char* write, char const* const end) {
+		assert((end - write) >= sizeof(val));
+
+		*write++ = (val & 0xFF);
+		*write++ = ((val & 0xFF00) >> 8);
+		*write++ = ((val & 0xFF0000) >> 16);
+		*write++ = ((val & 0xFF000000) >> 24);
+
+		*write++ = ((val & 0xFF000000'00) >> 32);
+		*write++ = ((val & 0xFF000000'0000) >> 40);
+		*write++ = ((val & 0xFF000000'000000) >> 48);
+		*write++ = ((val & 0xFF000000'00000000) >> 56);
+
+		return write;
+	}
+	char* f32(float val, char* write, char const* const end) {
+		assert((end - write) >= sizeof(val));
+
+		Converter32 convert;
+		convert.floatVal = val;
+		return u32(convert.uintVal, write, end);
+	}
+	char* f64(double val, char* write, char const* const end) {
+		assert((end - write) >= sizeof(val));
+
+		Converter64 convert;
+		convert.floatVal = val;
+		return u64(convert.uintVal, write, end);
+	}
+	char* ptr(const void* val, char* write, char const* const end) {
+		assert((end - write) >= sizeof(val));
+
+		ConverterPtr convert;
+		convert.cptr = val;
+		writeConvert(write, convert.uintVal);
+
+		return write + sizeof(convert);
+	}
+
+	char* string(const std::string& val, char* write, char const* const end) {
+		assert((end - write) >= val.size());
+
+		uint64_t length = val.size();
+		write = u64(length, write, end);
+
+		for (char elem : val) {
+			*write++ = elem;
 		}
-		uint8_t* i16(int16_t val, uint8_t* write, uint8_t const* const end) {
-			assert((end - write) >= sizeof(val));
 
-			*write++ = (val & 0xFF);
-			*write++ = ((val & 0xFF00) >> 8);
+		return write;
+	}
+	char* string_u8(const std::basic_string<uint8_t>& val, char* write, char const* const end) {
+		uint64_t bytes = val.size();
 
-			return write;
-		}
-		uint8_t* i32(int32_t val, uint8_t* write, uint8_t const* const end) {
-			assert((end - write) >= sizeof(val));
-
-			*write++ = (val & 0xFF);
-			*write++ = ((val & 0xFF00) >> 8);
-			*write++ = ((val & 0xFF0000) >> 16);
-			*write++ = ((val & 0xFF000000) >> 24);
-
-			return write;
-		}
-		uint8_t* i64(int64_t val, uint8_t* write, uint8_t const* const end) {
-			assert((end - write) >= sizeof(val));
-
-			*write++ = (val & 0xFF);
-			*write++ = ((val & 0xFF00) >> 8);
-			*write++ = ((val & 0xFF0000) >> 16);
-			*write++ = ((val & 0xFF000000) >> 24);
-
-			*write++ = ((val & 0xFF000000'00) >> 32);
-			*write++ = ((val & 0xFF000000'0000) >> 40);
-			*write++ = ((val & 0xFF000000'000000) >> 48);
-			*write++ = ((val & 0xFF000000'00000000) >> 56);
-
-			return write;
-		}
-		uint8_t* u8(uint8_t val, uint8_t* write, uint8_t const* const end) {
-			assert((end - write) >= sizeof(val));
-
-			*write++ = val;
-
-			return write;
-		}
-		uint8_t* u16(uint16_t val, uint8_t* write, uint8_t const* const end) {
-			assert((end - write) >= sizeof(val));
-
-			*write++ = (val & 0xFF);
-			*write++ = ((val & 0xFF00) >> 8);
-
-			return write;
-		}
-		uint8_t* u32(uint32_t val, uint8_t* write, uint8_t const* const end) {
-			assert((end - write) >= sizeof(val));
-
-			*write++ = (val & 0xFF);
-			*write++ = ((val & 0xFF00) >> 8);
-			*write++ = ((val & 0xFF0000) >> 16);
-			*write++ = ((val & 0xFF000000) >> 24);
-
-			return write;
-		}
-		uint8_t* u64(uint64_t val, uint8_t* write, uint8_t const* const end) {
-			assert((end - write) >= sizeof(val));
-
-			*write++ = (val & 0xFF);
-			*write++ = ((val & 0xFF00) >> 8);
-			*write++ = ((val & 0xFF0000) >> 16);
-			*write++ = ((val & 0xFF000000) >> 24);
-
-			*write++ = ((val & 0xFF000000'00) >> 32);
-			*write++ = ((val & 0xFF000000'0000) >> 40);
-			*write++ = ((val & 0xFF000000'000000) >> 48);
-			*write++ = ((val & 0xFF000000'00000000) >> 56);
-
-			return write;
-		}
-		uint8_t* f32(float val, uint8_t* write, uint8_t const* const end) {
-			assert((end - write) >= sizeof(val));
-
-			Converter32 convert;
-			convert.floatVal = val;
-			writeConvert(write, convert);
-
-			return write + sizeof(convert);
-		}
-		uint8_t* f64(double val, uint8_t* write, uint8_t const* const end) {
-			assert((end - write) >= sizeof(val));
-
-			Converter64 convert;
-			convert.floatVal = val;
-			writeConvert(write, convert);
-
-			return write + sizeof(convert);
-		}
-		uint8_t* ptr(const void* val, uint8_t* write, uint8_t const* const end) {
-			assert((end - write) >= sizeof(val));
-
-			ConverterPtr convert;
-			convert.cptr = val;
-			writeConvert(write, convert);
-
-			return write + sizeof(convert);
-		}
-
-		uint8_t* string(const std::string& val, uint8_t* write, uint8_t const* const end) {
-			assert((end - write) >= val.size());
-
-			uint64_t length = val.size();
-			write = u64(length, write, end);
-
-			Converter8 convert;
-			for (char elem : val) {
-				convert.charVal = elem;
-				write = i8(convert.intVal, write, end);
-			}
-
-			return write;
-		}
-		uint8_t* string_u8(const std::basic_string<uint8_t>& val, uint8_t* write, uint8_t const* const end) {
-			uint64_t bytes = val.size();
-
-			assert((end - write) >= bytes);
+		assert((end - write) >= bytes);
 			
-			write = u64(bytes, write, end);
+		write = u64(bytes, write, end);
 
-			for (uint8_t elem : val) {
-				write = u8(elem, write, end);
-			}
-
-			return write;
+		for (char elem : val) {
+			write = u8(elem, write, end);
 		}
-		uint8_t* string_u16(const std::basic_string<uint16_t>& val, uint8_t* write, uint8_t const* const end) {
-			uint64_t bytes = val.size() * 2;
 
-			assert((end - write) >= val.size());
+		return write;
+	}
+	char* string_u16(const std::basic_string<uint16_t>& val, char* write, char const* const end) {
+		uint64_t bytes = val.size() * 2;
 
-			write = u64(bytes, write, end);
+		assert((end - write) >= val.size());
 
-			for (uint16_t elem : val) {
-				write = u16(elem, write, end);
-			}
+		write = u64(bytes, write, end);
 
-			return write;
+		for (uint16_t elem : val) {
+			write = u16(elem, write, end);
 		}
-		uint8_t* string_u32(const std::basic_string<uint32_t>& val, uint8_t* write, uint8_t const* const end) {
-			uint64_t bytes = val.size() * 4;
 
-			assert((end - write) >= bytes);
+		return write;
+	}
+	char* string_u32(const std::basic_string<uint32_t>& val, char* write, char const* const end) {
+		uint64_t bytes = val.size() * 4;
+
+		assert((end - write) >= bytes);
 			
-			write = u64(bytes, write, end);
+		write = u64(bytes, write, end);
 
-			for (uint32_t elem : val) {
-				write = u32(elem, write, end);
-			}
-
-			return write;
-		}
-		uint8_t* string_u64(const std::basic_string<uint64_t>& val, uint8_t* write, uint8_t const* const end) {
-			uint64_t bytes = val.size() * 8;
-
-			assert((end - write) >= val.size());
-
-			write = u64(bytes, write, end);
-
-			for (uint64_t elem : val) {
-				write = u64(elem, write, end);
-			}
-
-			return write;
-		}
-		uint8_t* string_i8(const std::basic_string<int8_t>& val, uint8_t* write, uint8_t const* const end) {
-			uint64_t bytes = val.size();
-
-			assert((end - write) >= val.size());
-
-			write = u64(bytes, write, end);
-
-			for (int8_t elem : val) {
-				write = i8(elem, write, end);
-			}
-
-			return write;
-		}
-		uint8_t* string_i16(const std::basic_string<int16_t>& val, uint8_t* write, uint8_t const* const end) {
-			uint64_t bytes = val.size() * 2;
-
-			assert((end - write) >= val.size());
-
-			write = u64(bytes, write, end);
-
-			for (int16_t elem : val) {
-				write = i16(elem, write, end);
-			}
-
-			return write;
-		}
-		uint8_t* string_i32(const std::basic_string<int32_t>& val, uint8_t* write, uint8_t const* const end) {
-			uint64_t bytes = val.size() * 4;
-
-			assert((end - write) >= val.size());
-
-			write = u64(bytes, write, end);
-
-			for (int32_t elem : val) {
-				write = i32(elem, write, end);
-			}
-
-			return write;
-		}
-		uint8_t* string_i64(const std::basic_string<int64_t>& val, uint8_t* write, uint8_t const* const end) {
-			uint64_t bytes = val.size() * 8;
-
-			assert((end - write) >= val.size());
-
-			write = u64(bytes, write, end);
-
-			for (int64_t elem : val) {
-				write = i64(elem, write, end);
-			}
-
-			return write;
+		for (uint32_t elem : val) {
+			write = u32(elem, write, end);
 		}
 
+		return write;
+	}
+	char* string_u64(const std::basic_string<uint64_t>& val, char* write, char const* const end) {
+		uint64_t bytes = val.size() * 8;
 
-		void i8(int8_t val, std::vector<uint8_t>& buffer) {
-			Converter8 convert;
-			convert.intVal = val;
-			buffer.push_back(convert.uintVal);
-		}
-		void i16(int16_t val, std::vector<uint8_t>& buffer) {
-			Converter16 convert;
-			convert.intVal = val;
-			
-			writeConvert(buffer, convert);
-		}
-		void i32(int32_t val, std::vector<uint8_t>& buffer) {
-			Converter32 convert;
-			convert.intVal = val;
-			
-			writeConvert(buffer, convert);
-		}
-		void i64(int64_t val, std::vector<uint8_t>& buffer) {
-			Converter64 convert;
-			convert.intVal = val;
-			
-			writeConvert(buffer, convert);
-		}
-		void u8(uint8_t val, std::vector<uint8_t>& buffer) {
-			buffer.push_back(val);
-		}
-		void u16(uint16_t val, std::vector<uint8_t>& buffer) {
-			Converter16 convert;
-			convert.uintVal = val;
+		assert((end - write) >= val.size());
 
-			writeConvert(buffer, convert);
-		}
-		void u32(uint32_t val, std::vector<uint8_t>& buffer) {
-			Converter32 convert;
-			convert.uintVal = val;
+		write = u64(bytes, write, end);
 
-			writeConvert(buffer, convert);
-		}
-		void u64(uint64_t val, std::vector<uint8_t>& buffer) {
-			Converter64 convert;
-			convert.uintVal = val;
-
-			writeConvert(buffer, convert);
+		for (uint64_t elem : val) {
+			write = u64(elem, write, end);
 		}
 
-		void f32(float val, std::vector<uint8_t>& buffer) {
-			Converter32 convert;
-			convert.floatVal = val;
+		return write;
+	}
+	char* string_i8(const std::basic_string<int8_t>& val, char* write, char const* const end) {
+		uint64_t bytes = val.size();
 
-			writeConvert(buffer, convert);
-		}
-		void f64(double val, std::vector<uint8_t>& buffer) {
-			Converter64 convert;
-			convert.floatVal = val;
+		assert((end - write) >= val.size());
 
-			writeConvert(buffer, convert);
-		}
-		void ptr(const void* val, std::vector<uint8_t>& buffer) {
-			ConverterPtr convert;
-			convert.cptr = val;
+		write = u64(bytes, write, end);
 
-			writeConvert(buffer, convert);
+		for (int8_t elem : val) {
+			write = i8(elem, write, end);
 		}
 
-		void string(const std::string& val, std::vector<uint8_t>& buffer) {
-			uint64_t length = val.size();
-			u64(length, buffer);
+		return write;
+	}
+	char* string_i16(const std::basic_string<int16_t>& val, char* write, char const* const end) {
+		uint64_t bytes = val.size() * 2;
 
-			Converter8 convert;
-			for (char elem : val) {
-				convert.charVal = elem;
-				i8(convert.intVal, buffer);
-			}
-		}
-		void string_u8(const std::basic_string<uint8_t>& val, std::vector<uint8_t>& buffer) {
-			uint64_t bytes = val.size();
+		assert((end - write) >= val.size());
 
-			u64(bytes, buffer);
+		write = u64(bytes, write, end);
 
-			for (uint8_t elem : val) {
-				u8(elem, buffer);
-			}
-		}
-		void string_u16(const std::basic_string<uint16_t>& val, std::vector<uint8_t>& buffer) {
-			uint64_t bytes = val.size();
-
-			u64(bytes, buffer);
-
-			for (uint16_t elem : val) {
-				u16(elem, buffer);
-			}
-		}
-		void string_u32(const std::basic_string<uint32_t>& val, std::vector<uint8_t>& buffer) {
-			uint64_t bytes = val.size();
-
-			u64(bytes, buffer);
-
-			for (uint32_t elem : val) {
-				u32(elem, buffer);
-			}
-		}
-		void string_u64(const std::basic_string<uint64_t>& val, std::vector<uint8_t>& buffer) {
-			uint64_t bytes = val.size();
-
-			u64(bytes, buffer);
-
-			for (uint64_t elem : val) {
-				u64(elem, buffer);
-			}
-		}
-		void string_i8(const std::basic_string<int8_t>& val, std::vector<uint8_t>& buffer) {
-			uint64_t bytes = val.size();
-
-			u64(bytes, buffer);
-
-			for (int8_t elem : val) {
-				i8(elem, buffer);
-			}
-		}
-		void string_i16(const std::basic_string<int16_t>& val, std::vector<uint8_t>& buffer) {
-			uint64_t bytes = val.size();
-
-			u64(bytes, buffer);
-
-			for (int16_t elem : val) {
-				i16(elem, buffer);
-			}
-		}
-		void string_i32(const std::basic_string<int32_t>& val, std::vector<uint8_t>& buffer) {
-			uint64_t bytes = val.size();
-
-			u64(bytes, buffer);
-
-			for (int32_t elem : val) {
-				i32(elem, buffer);
-			}
-		}
-		void string_i64(const std::basic_string<int64_t>& val, std::vector<uint8_t>& buffer) {
-			uint64_t bytes = val.size();
-
-			u64(bytes, buffer);
-
-			for (int64_t elem : val) {
-				i64(elem, buffer);
-			}
+		for (int16_t elem : val) {
+			write = i16(elem, write, end);
 		}
 
+		return write;
+	}
+	char* string_i32(const std::basic_string<int32_t>& val, char* write, char const* const end) {
+		uint64_t bytes = val.size() * 4;
 
-		uint8_t* value(int8_t val, uint8_t* write, uint8_t const* const end) {
-			return serialize::i8(val, write, end);
-		}
-		uint8_t* value(int16_t val, uint8_t* write, uint8_t const* const end) {
-			return serialize::i16(val, write, end);
-		}
-		uint8_t* value(int32_t val, uint8_t* write, uint8_t const* const end) {
-			return serialize::i32(val, write, end);
-		}
-		uint8_t* value(int64_t val, uint8_t* write, uint8_t const* const end) {
-			return serialize::i64(val, write, end);
-		}
-		uint8_t* value(uint8_t val, uint8_t* write, uint8_t const* const end) {
-			return serialize::u8(val, write, end);
-		}
-		uint8_t* value(uint16_t val, uint8_t* write, uint8_t const* const end) {
-			return serialize::u16(val, write, end);
-		}
-		uint8_t* value(uint32_t val, uint8_t* write, uint8_t const* const end) {
-			return serialize::u32(val, write, end);
-		}
-		uint8_t* value(uint64_t val, uint8_t* write, uint8_t const* const end) {
-			return serialize::u64(val, write, end);
-		}
-		uint8_t* value(float val, uint8_t* write, uint8_t const* const end) {
-			return serialize::f32(val, write, end);
-		}
-		uint8_t* value(double val, uint8_t* write, uint8_t const* const end) {
-			return serialize::f64(val, write, end);
-		}
-		uint8_t* value(const void* val, uint8_t* write, uint8_t const* const end) {
-			return serialize::ptr(val, write, end);
-		}
-		uint8_t* value(const std::string& val, uint8_t* write, uint8_t const* const end) {
-			return serialize::string(val, write, end);
-		}
-		uint8_t* value(const std::basic_string<uint8_t>& val, uint8_t* write, uint8_t const* const end) {
-			return serialize::string_u8(val, write, end);
-		}
-		uint8_t* value(const std::basic_string<uint16_t>& val, uint8_t* write, uint8_t const* const end) {
-			return serialize::string_u16(val, write, end);
-		}
-		uint8_t* value(const std::basic_string<uint32_t>& val, uint8_t* write, uint8_t const* const end) {
-			return serialize::string_u32(val, write, end);
-		}
-		uint8_t* value(const std::basic_string<uint64_t>& val, uint8_t* write, uint8_t const* const end) {
-			return serialize::string_u64(val, write, end);
-		}
-		uint8_t* value(const std::basic_string<int8_t>& val, uint8_t* write, uint8_t const* const end) {
-			return serialize::string_i8(val, write, end);
-		}
-		uint8_t* value(const std::basic_string<int16_t>& val, uint8_t* write, uint8_t const* const end) {
-			return serialize::string_i16(val, write, end);
-		}
-		uint8_t* value(const std::basic_string<int32_t>& val, uint8_t* write, uint8_t const* const end) {
-			return serialize::string_i32(val, write, end);
-		}
-		uint8_t* value(const std::basic_string<int64_t>& val, uint8_t* write, uint8_t const* const end) {
-			return serialize::string_i64(val, write, end);
+		assert((end - write) >= val.size());
+
+		write = u64(bytes, write, end);
+
+		for (int32_t elem : val) {
+			write = i32(elem, write, end);
 		}
 
-		void value(int8_t val, std::vector<uint8_t>& buffer) {
-			return serialize::i8(val, buffer);
+		return write;
+	}
+	char* string_i64(const std::basic_string<int64_t>& val, char* write, char const* const end) {
+		uint64_t bytes = val.size() * 8;
+
+		assert((end - write) >= val.size());
+
+		write = u64(bytes, write, end);
+
+		for (int64_t elem : val) {
+			write = i64(elem, write, end);
 		}
-		void value(int16_t val, std::vector<uint8_t>& buffer) {
-			return serialize::i16(val, buffer);
+
+		return write;
+	}
+
+
+	void i8(int8_t val, std::string& buffer) {
+		buffer.push_back((char)val);
+	}
+	void i16(int16_t val, std::string& buffer) {
+		buffer.push_back((val & 0xFF));
+		buffer.push_back((val & 0xFF00) >> 8);
+	}
+	void i32(int32_t val, std::string& buffer) {
+		buffer.push_back((val & 0xFF));
+		buffer.push_back((val & 0xFF00) >> 8);
+		buffer.push_back((val & 0xFF0000) >> 16);
+		buffer.push_back((val & 0xFF000000) >> 24);
+	}
+	void i64(int64_t val, std::string& buffer) {
+		buffer.push_back((val & 0xFF));
+		buffer.push_back((val & 0xFF00) >> 8);
+		buffer.push_back((val & 0xFF0000) >> 16);
+		buffer.push_back((val & 0xFF000000) >> 24);
+
+		buffer.push_back((val & 0xFF000000'00) >> 32);
+		buffer.push_back((val & 0xFF000000'0000) >> 40);
+		buffer.push_back((val & 0xFF000000'000000) >> 48);
+		buffer.push_back((val & 0xFF000000'00000000) >> 56);
+	}
+	void u8(uint8_t val, std::string& buffer) {
+		buffer.push_back(val);
+	}
+	void u16(uint16_t val, std::string& buffer) {
+		buffer.push_back((val & 0xFF));
+		buffer.push_back((val & 0xFF00) >> 8);
+	}
+	void u32(uint32_t val, std::string& buffer) {
+		buffer.push_back((val & 0xFF));
+		buffer.push_back((val & 0xFF00) >> 8);
+		buffer.push_back((val & 0xFF0000) >> 16);
+		buffer.push_back((val & 0xFF000000) >> 24);
+	}
+	void u64(uint64_t val, std::string& buffer) {
+		buffer.push_back((val & 0xFF));
+		buffer.push_back((val & 0xFF00) >> 8);
+		buffer.push_back((val & 0xFF0000) >> 16);
+		buffer.push_back((val & 0xFF000000) >> 24);
+
+		buffer.push_back((val & 0xFF000000'00) >> 32);
+		buffer.push_back((val & 0xFF000000'0000) >> 40);
+		buffer.push_back((val & 0xFF000000'000000) >> 48);
+		buffer.push_back((val & 0xFF000000'00000000) >> 56);
+	}
+
+	void f32(float val, std::string& buffer) {
+		Converter32 convert;
+		convert.floatVal = val;
+		u32(convert.uintVal, buffer);
+	}
+	void f64(double val, std::string& buffer) {
+		Converter64 convert;
+		convert.floatVal = val;
+		u64(convert.uintVal, buffer);
+	}
+	void ptr(const void* val, std::string& buffer) {
+		ConverterPtr convert;
+		convert.cptr = val;
+
+		writeConvert(buffer, convert.uintVal);
+	}
+
+	void string(const std::string& val, std::string& buffer) {
+		uint64_t length = val.size();
+		u64(length, buffer);
+
+		buffer.append(val);
+	}
+	void string_u8(const std::basic_string<uint8_t>& val, std::string& buffer) {
+		uint64_t bytes = val.size();
+
+		u64(bytes, buffer);
+
+		for (uint8_t elem : val) {
+			u8(elem, buffer);
 		}
-		void value(int32_t val, std::vector<uint8_t>& buffer) {
-			return serialize::i32(val, buffer);
+	}
+	void string_u16(const std::basic_string<uint16_t>& val, std::string& buffer) {
+		uint64_t bytes = val.size();
+
+		u64(bytes, buffer);
+
+		for (uint16_t elem : val) {
+			u16(elem, buffer);
 		}
-		void value(int64_t val, std::vector<uint8_t>& buffer) {
-			return serialize::i64(val, buffer);
+	}
+	void string_u32(const std::basic_string<uint32_t>& val, std::string& buffer) {
+		uint64_t bytes = val.size();
+
+		u64(bytes, buffer);
+
+		for (uint32_t elem : val) {
+			u32(elem, buffer);
 		}
-		void value(uint8_t val, std::vector<uint8_t>& buffer) {
-			return serialize::u8(val, buffer);
+	}
+	void string_u64(const std::basic_string<uint64_t>& val, std::string& buffer) {
+		uint64_t bytes = val.size();
+
+		u64(bytes, buffer);
+
+		for (uint64_t elem : val) {
+			u64(elem, buffer);
 		}
-		void value(uint16_t val, std::vector<uint8_t>& buffer) {
-			return serialize::u16(val, buffer);
+	}
+	void string_i8(const std::basic_string<int8_t>& val, std::string& buffer) {
+		uint64_t bytes = val.size();
+
+		u64(bytes, buffer);
+
+		for (int8_t elem : val) {
+			i8(elem, buffer);
 		}
-		void value(uint32_t val, std::vector<uint8_t>& buffer) {
-			return serialize::u32(val, buffer);
+	}
+	void string_i16(const std::basic_string<int16_t>& val, std::string& buffer) {
+		uint64_t bytes = val.size();
+
+		u64(bytes, buffer);
+
+		for (int16_t elem : val) {
+			i16(elem, buffer);
 		}
-		void value(uint64_t val, std::vector<uint8_t>& buffer) {
-			return serialize::u64(val, buffer);
+	}
+	void string_i32(const std::basic_string<int32_t>& val, std::string& buffer) {
+		uint64_t bytes = val.size();
+
+		u64(bytes, buffer);
+
+		for (int32_t elem : val) {
+			i32(elem, buffer);
 		}
-		void value(float val, std::vector<uint8_t>& buffer) {
-			return serialize::f32(val, buffer);
+	}
+	void string_i64(const std::basic_string<int64_t>& val, std::string& buffer) {
+		uint64_t bytes = val.size();
+
+		u64(bytes, buffer);
+
+		for (int64_t elem : val) {
+			i64(elem, buffer);
 		}
-		void value(double val, std::vector<uint8_t>& buffer) {
-			return serialize::f64(val, buffer);
-		}
-		void value(const void* val, std::vector<uint8_t>& buffer) {
-			return serialize::ptr(val, buffer);
-		}
-		void value(const std::string& val, std::vector<uint8_t>& buffer) {
-			return serialize::string(val, buffer);
-		}
-		void value(const std::basic_string<uint8_t>& val, std::vector<uint8_t>& buffer) {
-			return serialize::string_u8(val, buffer);
-		}
-		void value(const std::basic_string<uint16_t>& val, std::vector<uint8_t>& buffer) {
-			return serialize::string_u16(val, buffer);
-		}
-		void value(const std::basic_string<uint32_t>& val, std::vector<uint8_t>& buffer) {
-			return serialize::string_u32(val, buffer);
-		}
-		void value(const std::basic_string<uint64_t>& val, std::vector<uint8_t>& buffer) {
-			return serialize::string_u64(val, buffer);
-		}
-		void value(const std::basic_string<int8_t>& val, std::vector<uint8_t>& buffer) {
-			return serialize::string_i8(val, buffer);
-		}
-		void value(const std::basic_string<int16_t>& val, std::vector<uint8_t>& buffer) {
-			return serialize::string_i16(val, buffer);
-		}
-		void value(const std::basic_string<int32_t>& val, std::vector<uint8_t>& buffer) {
-			return serialize::string_i32(val, buffer);
-		}
-		void value(const std::basic_string<int64_t>& val, std::vector<uint8_t>& buffer) {
-			return serialize::string_i64(val, buffer);
-		}
+	}
+
+
+	char* value(int8_t val, char* write, char const* const end) {
+		return serialize::i8(val, write, end);
+	}
+	char* value(int16_t val, char* write, char const* const end) {
+		return serialize::i16(val, write, end);
+	}
+	char* value(int32_t val, char* write, char const* const end) {
+		return serialize::i32(val, write, end);
+	}
+	char* value(int64_t val, char* write, char const* const end) {
+		return serialize::i64(val, write, end);
+	}
+	char* value(uint8_t val, char* write, char const* const end) {
+		return serialize::u8(val, write, end);
+	}
+	char* value(uint16_t val, char* write, char const* const end) {
+		return serialize::u16(val, write, end);
+	}
+	char* value(uint32_t val, char* write, char const* const end) {
+		return serialize::u32(val, write, end);
+	}
+	char* value(uint64_t val, char* write, char const* const end) {
+		return serialize::u64(val, write, end);
+	}
+	char* value(float val, char* write, char const* const end) {
+		return serialize::f32(val, write, end);
+	}
+	char* value(double val, char* write, char const* const end) {
+		return serialize::f64(val, write, end);
+	}
+	char* value(const void* val, char* write, char const* const end) {
+		return serialize::ptr(val, write, end);
+	}
+	char* value(const std::string& val, char* write, char const* const end) {
+		return serialize::string(val, write, end);
+	}
+	char* value(const std::basic_string<uint8_t>& val, char* write, char const* const end) {
+		return serialize::string_u8(val, write, end);
+	}
+	char* value(const std::basic_string<uint16_t>& val, char* write, char const* const end) {
+		return serialize::string_u16(val, write, end);
+	}
+	char* value(const std::basic_string<uint32_t>& val, char* write, char const* const end) {
+		return serialize::string_u32(val, write, end);
+	}
+	char* value(const std::basic_string<uint64_t>& val, char* write, char const* const end) {
+		return serialize::string_u64(val, write, end);
+	}
+	char* value(const std::basic_string<int8_t>& val, char* write, char const* const end) {
+		return serialize::string_i8(val, write, end);
+	}
+	char* value(const std::basic_string<int16_t>& val, char* write, char const* const end) {
+		return serialize::string_i16(val, write, end);
+	}
+	char* value(const std::basic_string<int32_t>& val, char* write, char const* const end) {
+		return serialize::string_i32(val, write, end);
+	}
+	char* value(const std::basic_string<int64_t>& val, char* write, char const* const end) {
+		return serialize::string_i64(val, write, end);
+	}
+
+	void value(int8_t val, std::string& buffer) {
+		return serialize::i8(val, buffer);
+	}
+	void value(int16_t val, std::string& buffer) {
+		return serialize::i16(val, buffer);
+	}
+	void value(int32_t val, std::string& buffer) {
+		return serialize::i32(val, buffer);
+	}
+	void value(int64_t val, std::string& buffer) {
+		return serialize::i64(val, buffer);
+	}
+	void value(uint8_t val, std::string& buffer) {
+		return serialize::u8(val, buffer);
+	}
+	void value(uint16_t val, std::string& buffer) {
+		return serialize::u16(val, buffer);
+	}
+	void value(uint32_t val, std::string& buffer) {
+		return serialize::u32(val, buffer);
+	}
+	void value(uint64_t val, std::string& buffer) {
+		return serialize::u64(val, buffer);
+	}
+	void value(float val, std::string& buffer) {
+		return serialize::f32(val, buffer);
+	}
+	void value(double val, std::string& buffer) {
+		return serialize::f64(val, buffer);
+	}
+	void value(const void* val, std::string& buffer) {
+		return serialize::ptr(val, buffer);
+	}
+	void value(const std::string& val, std::string& buffer) {
+		return serialize::string(val, buffer);
+	}
+	void value(const std::basic_string<uint8_t>& val, std::string& buffer) {
+		return serialize::string_u8(val, buffer);
+	}
+	void value(const std::basic_string<uint16_t>& val, std::string& buffer) {
+		return serialize::string_u16(val, buffer);
+	}
+	void value(const std::basic_string<uint32_t>& val, std::string& buffer) {
+		return serialize::string_u32(val, buffer);
+	}
+	void value(const std::basic_string<uint64_t>& val, std::string& buffer) {
+		return serialize::string_u64(val, buffer);
+	}
+	void value(const std::basic_string<int8_t>& val, std::string& buffer) {
+		return serialize::string_i8(val, buffer);
+	}
+	void value(const std::basic_string<int16_t>& val, std::string& buffer) {
+		return serialize::string_i16(val, buffer);
+	}
+	void value(const std::basic_string<int32_t>& val, std::string& buffer) {
+		return serialize::string_i32(val, buffer);
+	}
+	void value(const std::basic_string<int64_t>& val, std::string& buffer) {
+		return serialize::string_i64(val, buffer);
 	}
 }
