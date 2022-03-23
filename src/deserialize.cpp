@@ -7,6 +7,10 @@
 
 static_assert(CHAR_BIT == 8, "Your system has a non-standard bitwidth for character types!");
 
+static_assert(std::is_same_v<std::uint8_t, char> ||
+	std::is_same_v<std::uint8_t, unsigned char>,
+	"This library requires std::uint8_t to be implemented as char or unsigned char.");
+
 namespace ez::deserialize {
 	const char* string(const char* read, char const* const end, std::string& ret) {
 		uint64_t length;
@@ -169,11 +173,8 @@ namespace ez::deserialize {
 	const char* f32(const char* read, char const* const end, float & ret) {
 		assert((end - read) >= sizeof(float));
 
-		uint32_t ival;
-		read = readConvert(read, ival);
-
 		Converter32 convert;
-		convert.uintVal = ival;
+		read = readConvert(read, convert.uintVal);
 		ret = convert.floatVal;
 
 		return read;

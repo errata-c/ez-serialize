@@ -1,10 +1,32 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
 
+#include <type_traits>
+
 #include <ez/serialize.hpp>
 #include <ez/deserialize.hpp>
 
 #include <ez/intern/Convert.hpp>
+
+
+
+TEST_CASE("conversion") {
+	// Simple conversion test to make sure the compiler is conformant
+	char val = -86;
+	uint32_t res = val;
+
+	uint32_t c = 86;
+	c = ~c;
+	c += 1;
+
+	// Sign extention should take place
+	REQUIRE(res == c);
+
+
+	res = uint8_t(val);
+	c = c & 0xFF;
+	REQUIRE(res == c);
+}
 
 TEST_CASE("basic") {
 	std::string buffer;
@@ -83,9 +105,22 @@ TEST_CASE("basic") {
 		float val = 1.234567890123456789;
 
 		Converter32 convert;
-
+		convert.floatVal = val;
+		bool isLittleEndian = convert.data[0] == char(convert.uintVal & 0xFF);
 
 		ez::serialize::f32(val, data, end);
+
+		if (isLittleEndian) {
+			for (int i = 0; i < 4; ++i) {
+				REQUIRE(convert.data[i] == data[i]);
+			}
+		}
+		else {
+			for (int i = 0; i < 4; ++i) {
+				REQUIRE(convert.data[3-i] == data[i]);
+			}
+		}
+
 		float regen;
 		ez::deserialize::f32(data, end, regen);
 
@@ -93,7 +128,22 @@ TEST_CASE("basic") {
 	}
 	SECTION("double") {
 		double val = 1.234567890123456789;
+		Converter64 convert;
+		convert.floatVal = val;
+		bool isLittleEndian = convert.data[0] == char(convert.uintVal & 0xFF);
+
 		ez::serialize::f64(val, data, end);
+		if (isLittleEndian) {
+			for (int i = 0; i < 8; ++i) {
+				REQUIRE(convert.data[i] == data[i]);
+			}
+		}
+		else {
+			for (int i = 0; i < 8; ++i) {
+				REQUIRE(convert.data[3 - i] == data[i]);
+			}
+		}
+
 		double regen;
 		ez::deserialize::f64(data, end, regen);
 

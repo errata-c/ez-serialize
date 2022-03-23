@@ -14,82 +14,42 @@ namespace ez::serialize {
 	char* i8(int8_t val, char* write, char const* const end) {
 		assert((end - write) >= sizeof(val));
 
-		*write++ = val;
-
-		return write;
+		return writeConvert(write, val);
 	}
 	char* i16(int16_t val, char* write, char const* const end) {
 		assert((end - write) >= sizeof(val));
 
-		*write++ = (val & 0xFF);
-		*write++ = ((val & 0xFF00) >> 8);
-
-		return write;
+		return writeConvert(write, val);
 	}
 	char* i32(int32_t val, char* write, char const* const end) {
 		assert((end - write) >= sizeof(val));
 
-		*write++ = (val & 0xFF);
-		*write++ = ((val & 0xFF00) >> 8);
-		*write++ = ((val & 0xFF0000) >> 16);
-		*write++ = ((val & 0xFF000000) >> 24);
-
-		return write;
+		return writeConvert(write, val);
 	}
 	char* i64(int64_t val, char* write, char const* const end) {
 		assert((end - write) >= sizeof(val));
 
-		*write++ = (val & 0xFF);
-		*write++ = ((val & 0xFF00) >> 8);
-		*write++ = ((val & 0xFF0000) >> 16);
-		*write++ = ((val & 0xFF000000) >> 24);
-
-		*write++ = ((val & 0xFF000000'00) >> 32);
-		*write++ = ((val & 0xFF000000'0000) >> 40);
-		*write++ = ((val & 0xFF000000'000000) >> 48);
-		*write++ = ((val & 0xFF000000'00000000) >> 56);
-
-		return write;
+		return writeConvert(write, val);
 	}
 	char* u8(uint8_t val, char* write, char const* const end) {
 		assert((end - write) >= sizeof(val));
 
-		*write++ = val;
-
-		return write;
+		return writeConvert(write, val);
 	}
 	char* u16(uint16_t val, char* write, char const* const end) {
 		assert((end - write) >= sizeof(val));
 
-		*write++ = (val & 0xFF);
-		*write++ = ((val & 0xFF00) >> 8);
-
-		return write;
+		return writeConvert(write, val);
 	}
 	char* u32(uint32_t val, char* write, char const* const end) {
 		assert((end - write) >= sizeof(val));
 
-		*write++ = (val & 0xFF);
-		*write++ = ((val & 0xFF00) >> 8);
-		*write++ = ((val & 0xFF0000) >> 16);
-		*write++ = ((val & 0xFF000000) >> 24);
-
-		return write;
+		return writeConvert(write, val);
 	}
 	char* u64(uint64_t val, char* write, char const* const end) {
 		assert((end - write) >= sizeof(val));
 
-		*write++ = (val & 0xFF);
-		*write++ = ((val & 0xFF00) >> 8);
-		*write++ = ((val & 0xFF0000) >> 16);
-		*write++ = ((val & 0xFF000000) >> 24);
-
-		*write++ = ((val & 0xFF000000'00) >> 32);
-		*write++ = ((val & 0xFF000000'0000) >> 40);
-		*write++ = ((val & 0xFF000000'000000) >> 48);
-		*write++ = ((val & 0xFF000000'00000000) >> 56);
-
-		return write;
+		return writeConvert(write, val);
 	}
 	char* f32(float val, char* write, char const* const end) {
 		assert((end - write) >= sizeof(val));
