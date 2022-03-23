@@ -1,96 +1,101 @@
 #include <ez/serialize.hpp>
 #include "Convert.hpp"
 
+#include <cassert>
+
+// Benchmarks show that just writing directly is much faster.
+// Small boost to performance when using assertions instead of exceptions as well.
+// (Obviously just for the release builds)
+
+// Going to have to check the specs to see if this is a valid implementation, don't want any undefined
+// behaviour.
+
 namespace ez {
 	namespace serialize {
-		uint8_t* i8(int8_t val, uint8_t* write, uint8_t const* const end) {
-			if ((end - write) < sizeof(val)) {
-				throw std::out_of_range("ez::serialize::i8 called with write range smaller than the object being written!");
-			}
+		
 
-			Converter8 convert;
-			convert.intVal = val;
-			*write++ = convert.uintVal;
+		uint8_t* i8(int8_t val, uint8_t* write, uint8_t const* const end) {
+			assert((end - write) >= sizeof(val));
+
+			*write++ = val;
+
 			return write;
 		}
 		uint8_t* i16(int16_t val, uint8_t* write, uint8_t const* const end) {
-			if ((end - write) < sizeof(val)) {
-				throw std::out_of_range("ez::serialize::i16 called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= sizeof(val));
 
-			Converter16 convert;
-			convert.intVal = val;
-			writeConvert(write, convert);
+			*write++ = (val & 0xFF);
+			*write++ = ((val & 0xFF00) >> 8);
 
-			return write + sizeof(convert);
+			return write;
 		}
 		uint8_t* i32(int32_t val, uint8_t* write, uint8_t const* const end) {
-			if ((end - write) < sizeof(val)) {
-				throw std::out_of_range("ez::serialize::i32 called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= sizeof(val));
 
-			Converter32 convert;
-			convert.intVal = val;
-			writeConvert(write, convert);
+			*write++ = (val & 0xFF);
+			*write++ = ((val & 0xFF00) >> 8);
+			*write++ = ((val & 0xFF0000) >> 16);
+			*write++ = ((val & 0xFF000000) >> 24);
 
-			return write + sizeof(convert);
+			return write;
 		}
 		uint8_t* i64(int64_t val, uint8_t* write, uint8_t const* const end) {
-			if ((end - write) < sizeof(val)) {
-				throw std::out_of_range("ez::serialize::i64 called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= sizeof(val));
 
-			Converter64 convert;
-			convert.intVal = val;
-			writeConvert(write, convert);
+			*write++ = (val & 0xFF);
+			*write++ = ((val & 0xFF00) >> 8);
+			*write++ = ((val & 0xFF0000) >> 16);
+			*write++ = ((val & 0xFF000000) >> 24);
 
-			return write + sizeof(convert);
+			*write++ = ((val & 0xFF000000'00) >> 32);
+			*write++ = ((val & 0xFF000000'0000) >> 40);
+			*write++ = ((val & 0xFF000000'000000) >> 48);
+			*write++ = ((val & 0xFF000000'00000000) >> 56);
+
+			return write;
 		}
 		uint8_t* u8(uint8_t val, uint8_t* write, uint8_t const* const end) {
-			if ((end - write) < sizeof(val)) {
-				throw std::out_of_range("ez::serialize::u8 called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= sizeof(val));
 
 			*write++ = val;
+
 			return write;
 		}
 		uint8_t* u16(uint16_t val, uint8_t* write, uint8_t const* const end) {
-			if ((end - write) < sizeof(val)) {
-				throw std::out_of_range("ez::serialize::u16 called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= sizeof(val));
 
-			Converter16 convert;
-			convert.uintVal = val;
-			writeConvert(write, convert);
+			*write++ = (val & 0xFF);
+			*write++ = ((val & 0xFF00) >> 8);
 
-			return write + sizeof(convert);
+			return write;
 		}
 		uint8_t* u32(uint32_t val, uint8_t* write, uint8_t const* const end) {
-			if ((end - write) < sizeof(val)) {
-				throw std::out_of_range("ez::serialize::u32 called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= sizeof(val));
 
-			Converter32 convert;
-			convert.uintVal = val;
-			writeConvert(write, convert);
+			*write++ = (val & 0xFF);
+			*write++ = ((val & 0xFF00) >> 8);
+			*write++ = ((val & 0xFF0000) >> 16);
+			*write++ = ((val & 0xFF000000) >> 24);
 
-			return write + sizeof(convert);
+			return write;
 		}
 		uint8_t* u64(uint64_t val, uint8_t* write, uint8_t const* const end) {
-			if ((end - write) < sizeof(val)) {
-				throw std::out_of_range("ez::serialize::u64 called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= sizeof(val));
 
-			Converter64 convert;
-			convert.uintVal = val;
-			writeConvert(write, convert);
+			*write++ = (val & 0xFF);
+			*write++ = ((val & 0xFF00) >> 8);
+			*write++ = ((val & 0xFF0000) >> 16);
+			*write++ = ((val & 0xFF000000) >> 24);
 
-			return write + sizeof(convert);
+			*write++ = ((val & 0xFF000000'00) >> 32);
+			*write++ = ((val & 0xFF000000'0000) >> 40);
+			*write++ = ((val & 0xFF000000'000000) >> 48);
+			*write++ = ((val & 0xFF000000'00000000) >> 56);
+
+			return write;
 		}
 		uint8_t* f32(float val, uint8_t* write, uint8_t const* const end) {
-			if ((end - write) < sizeof(val)) {
-				throw std::out_of_range("ez::serialize::ptr called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= sizeof(val));
 
 			Converter32 convert;
 			convert.floatVal = val;
@@ -99,9 +104,7 @@ namespace ez {
 			return write + sizeof(convert);
 		}
 		uint8_t* f64(double val, uint8_t* write, uint8_t const* const end) {
-			if ((end - write) < sizeof(val)) {
-				throw std::out_of_range("ez::serialize::f64 called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= sizeof(val));
 
 			Converter64 convert;
 			convert.floatVal = val;
@@ -110,9 +113,7 @@ namespace ez {
 			return write + sizeof(convert);
 		}
 		uint8_t* ptr(const void* val, uint8_t* write, uint8_t const* const end) {
-			if ((end - write) < sizeof(val)) {
-				throw std::out_of_range("ez::serialize::f32 called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= sizeof(val));
 
 			ConverterPtr convert;
 			convert.cptr = val;
@@ -122,9 +123,7 @@ namespace ez {
 		}
 
 		uint8_t* string(const std::string& val, uint8_t* write, uint8_t const* const end) {
-			if ((end - write) < val.size()) {
-				throw std::out_of_range("ez::serialize::string called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= val.size());
 
 			uint64_t length = val.size();
 			write = u64(length, write, end);
@@ -140,9 +139,7 @@ namespace ez {
 		uint8_t* string_u8(const std::basic_string<uint8_t>& val, uint8_t* write, uint8_t const* const end) {
 			uint64_t bytes = val.size();
 
-			if ((end - write) < bytes) {
-				throw std::out_of_range("ez::serialize::string_u8 called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= bytes);
 			
 			write = u64(bytes, write, end);
 
@@ -155,9 +152,7 @@ namespace ez {
 		uint8_t* string_u16(const std::basic_string<uint16_t>& val, uint8_t* write, uint8_t const* const end) {
 			uint64_t bytes = val.size() * 2;
 
-			if ((end - write) < val.size()) {
-				throw std::out_of_range("ez::serialize::string_u16 called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= val.size());
 
 			write = u64(bytes, write, end);
 
@@ -170,9 +165,7 @@ namespace ez {
 		uint8_t* string_u32(const std::basic_string<uint32_t>& val, uint8_t* write, uint8_t const* const end) {
 			uint64_t bytes = val.size() * 4;
 
-			if ((end - write) < bytes) {
-				throw std::out_of_range("ez::serialize::string_u32 called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= bytes);
 			
 			write = u64(bytes, write, end);
 
@@ -185,9 +178,7 @@ namespace ez {
 		uint8_t* string_u64(const std::basic_string<uint64_t>& val, uint8_t* write, uint8_t const* const end) {
 			uint64_t bytes = val.size() * 8;
 
-			if ((end - write) < val.size()) {
-				throw std::out_of_range("ez::serialize::string_u64 called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= val.size());
 
 			write = u64(bytes, write, end);
 
@@ -200,9 +191,7 @@ namespace ez {
 		uint8_t* string_i8(const std::basic_string<int8_t>& val, uint8_t* write, uint8_t const* const end) {
 			uint64_t bytes = val.size();
 
-			if ((end - write) < val.size()) {
-				throw std::out_of_range("ez::serialize::string_i8 called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= val.size());
 
 			write = u64(bytes, write, end);
 
@@ -215,9 +204,7 @@ namespace ez {
 		uint8_t* string_i16(const std::basic_string<int16_t>& val, uint8_t* write, uint8_t const* const end) {
 			uint64_t bytes = val.size() * 2;
 
-			if ((end - write) < val.size()) {
-				throw std::out_of_range("ez::serialize::string_i16 called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= val.size());
 
 			write = u64(bytes, write, end);
 
@@ -230,9 +217,7 @@ namespace ez {
 		uint8_t* string_i32(const std::basic_string<int32_t>& val, uint8_t* write, uint8_t const* const end) {
 			uint64_t bytes = val.size() * 4;
 
-			if ((end - write) < val.size()) {
-				throw std::out_of_range("ez::serialize::string_i32 called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= val.size());
 
 			write = u64(bytes, write, end);
 
@@ -245,9 +230,7 @@ namespace ez {
 		uint8_t* string_i64(const std::basic_string<int64_t>& val, uint8_t* write, uint8_t const* const end) {
 			uint64_t bytes = val.size() * 8;
 
-			if ((end - write) < val.size()) {
-				throw std::out_of_range("ez::serialize::string_i64 called with write range smaller than the object being written!");
-			}
+			assert((end - write) >= val.size());
 
 			write = u64(bytes, write, end);
 

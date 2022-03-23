@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.15)
 
 project(EZ_SERIALIZE
-	VERSION 0.3.1
+	VERSION 0.4.0
 	LANGUAGES CXX
 )
 
 option(EZ_SERIALIZE_BUILD_TESTS "Build the test executables" OFF)
+option(EZ_SERIALIZE_BUILD_BENCHMARKS "Build the benchmarks" OFF)
 set(EZ_SERIALIZE_CONFIG_DIR "share/ez-serialize" CACHE STRING "The relative directory to install package config files.")
 
 
@@ -17,6 +18,9 @@ FetchContent_Declare(
 	GIT_TAG "main"
 )
 FetchContent_MakeAvailable(ez-cmake)
+
+# Function included in the ez-cmake project
+ez_is_project_top_level(EZ_SERIALIZE_TOP_LEVEL)
 
 
 add_library(ez-serialize STATIC 
@@ -39,24 +43,29 @@ if(EZ_SERIALIZE_BUILD_TESTS)
 	add_subdirectory("tests")
 endif()
 
+if(EZ_SERIALIZE_BUILD_BENCHMARKS)
+	add_subdirectory("benchmarks")
+endif()
 
-install(
-	DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
-	DESTINATION "include"
-)
+if(EZ_SERIALIZE_TOP_LEVEL)
+	install(
+		DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+		DESTINATION "include"
+	)
 
-install(TARGETS ez-serialize
-	EXPORT ez-serialize-targets
-	LIBRARY DESTINATION "lib/$<CONFIG>"
-	ARCHIVE DESTINATION "lib/$<CONFIG>"
-	RUNTIME DESTINATION "bin/$<CONFIG>"
-)
+	install(TARGETS ez-serialize
+		EXPORT ez-serialize-targets
+		LIBRARY DESTINATION "lib/$<CONFIG>"
+		ARCHIVE DESTINATION "lib/$<CONFIG>"
+		RUNTIME DESTINATION "bin/$<CONFIG>"
+	)
 
-install_package(
-	NAME "ez-serialize"
-	NAMESPACE "ez::"
-	EXPORT "ez-serialize-targets"
-	DESTINATION "${EZ_SERIALIZE_CONFIG_DIR}"
-	COMPATIBILITY "SameMajorVersion"
-	VERSION "${EZ_SERIALIZE_VERSION}"
-)
+	install_package(
+		NAME "ez-serialize"
+		NAMESPACE "ez::"
+		EXPORT "ez-serialize-targets"
+		DESTINATION "${EZ_SERIALIZE_CONFIG_DIR}"
+		COMPATIBILITY "SameMajorVersion"
+		VERSION "${EZ_SERIALIZE_VERSION}"
+	)
+endif()
