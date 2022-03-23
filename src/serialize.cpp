@@ -11,6 +11,8 @@
 // behaviour.
 
 namespace ez::serialize {
+	using namespace ez::intern;
+
 	char* i8(int8_t val, char* write, char const* const end) {
 		assert((end - write) >= sizeof(val));
 

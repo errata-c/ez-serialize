@@ -12,6 +12,8 @@ static_assert(std::is_same_v<std::uint8_t, char> ||
 	"This library requires std::uint8_t to be implemented as char or unsigned char.");
 
 namespace ez::deserialize {
+	using namespace ez::intern;
+
 	const char* string(const char* read, char const* const end, std::string& ret) {
 		uint64_t length;
 		read = u64(read, end, length);
