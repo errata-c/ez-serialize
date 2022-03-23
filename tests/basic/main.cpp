@@ -8,7 +8,7 @@
 
 #include <ez/intern/Convert.hpp>
 
-
+using namespace ez::intern;
 
 TEST_CASE("conversion") {
 	// Simple conversion test to make sure the compiler is conformant
