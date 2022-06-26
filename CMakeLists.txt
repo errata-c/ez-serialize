@@ -1,17 +1,14 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.21)
 
 project(EZ_SERIALIZE
 	VERSION 0.5.0
 	LANGUAGES CXX
 )
 
-option(EZ_SERIALIZE_BUILD_TESTS "Build the test executables" OFF)
 option(EZ_SERIALIZE_BUILD_BENCHMARKS "Build the benchmarks" OFF)
 set(EZ_SERIALIZE_CONFIG_DIR "share/ez-serialize" CACHE STRING "The relative directory to install package config files.")
 
-
 include(FetchContent)
-
 FetchContent_Declare(
 	ez-cmake
 	GIT_REPOSITORY "https://github.com/errata-c/ez-cmake.git"
@@ -19,9 +16,9 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(ez-cmake)
 
-# Function included in the ez-cmake project
-ez_is_project_top_level(EZ_SERIALIZE_TOP_LEVEL)
-
+if(PROJECT_IS_TOP_LEVEL)
+	include(CTest)
+endif()
 
 add_library(ez-serialize STATIC 
 	"src/serialize.cpp" 
@@ -39,15 +36,15 @@ set_target_properties(ez-serialize PROPERTIES EXPORT_NAME "serialize")
 add_library(ez::serialize ALIAS ez-serialize)
 
 
-if(EZ_SERIALIZE_BUILD_TESTS)
-	add_subdirectory("tests")
-endif()
-
 if(EZ_SERIALIZE_BUILD_BENCHMARKS)
 	add_subdirectory("benchmarks")
 endif()
 
-if(EZ_SERIALIZE_TOP_LEVEL)
+if(PROJECT_IS_TOP_LEVEL)
+	if(BUILD_TESTING)
+		add_subdirectory("tests")
+	endif()
+
 	install(
 		DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
 		DESTINATION "include"
