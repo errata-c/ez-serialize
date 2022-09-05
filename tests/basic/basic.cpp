@@ -158,3 +158,44 @@ TEST_CASE("basic") {
 		REQUIRE(val == regen);
 	}
 }
+
+TEST_CASE("Enumerators") {
+	enum class Test0: int32_t {
+		A,
+		B,
+		C,
+		D
+	};
+
+	enum class Test1 : int8_t {
+		A,
+		B,
+		C,
+		D
+	};
+
+	std::string buffer;
+	buffer.resize(32, 0);
+
+	char* data = buffer.data();
+	const char* const end = data + buffer.size();
+
+	SECTION("Test0") {
+		Test0 val = GENERATE(Test0::A, Test0::B, Test0::C, Test0::D);
+		ez::serialize::enumerator(val, data, end);
+		
+		Test0 regen;
+		ez::deserialize::enumerator(data, end, regen);
+
+		REQUIRE(val == regen);
+	}
+	SECTION("Test1") {
+		Test1 val = GENERATE(Test1::A, Test1::B, Test1::C, Test1::D);
+		ez::serialize::enumerator(val, data, end);
+
+		Test1 regen;
+		ez::deserialize::enumerator(data, end, regen);
+
+		REQUIRE(val == regen);
+	}
+}

@@ -7,6 +7,7 @@
 
 static_assert(CHAR_BIT == 8, "Your system has a non-standard bitwidth for character types!");
 
+// Do we actually need this?
 static_assert(std::is_same_v<std::uint8_t, char> ||
 	std::is_same_v<std::uint8_t, unsigned char>,
 	"This library requires std::uint8_t to be implemented as char or unsigned char.");
