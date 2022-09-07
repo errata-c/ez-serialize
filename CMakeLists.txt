@@ -16,10 +16,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(ez-cmake)
 
-if(PROJECT_IS_TOP_LEVEL)
-	include(CTest)
-endif()
-
 add_library(ez-serialize STATIC 
 	"src/serialize.cpp" 
 	"src/deserialize.cpp"
@@ -35,12 +31,12 @@ set_target_properties(ez-serialize PROPERTIES EXPORT_NAME "serialize")
 
 add_library(ez::serialize ALIAS ez-serialize)
 
-
-if(EZ_SERIALIZE_BUILD_BENCHMARKS)
-	add_subdirectory("benchmarks")
-endif()
-
 if(PROJECT_IS_TOP_LEVEL)
+	if(EZ_SERIALIZE_BUILD_BENCHMARKS)
+		add_subdirectory("benchmarks")
+	endif()
+
+	include(CTest)
 	if(BUILD_TESTING)
 		add_subdirectory("tests")
 	endif()
