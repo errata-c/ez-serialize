@@ -7,9 +7,6 @@
 // Small boost to performance when using assertions instead of exceptions as well.
 // (Obviously just for the release builds)
 
-// Going to have to check the specs to see if this is a valid implementation, don't want any undefined
-// behaviour.
-
 namespace ez::serialize {
 	using namespace ez::intern;
 
@@ -70,6 +67,18 @@ namespace ez::serialize {
 		writeConvert(write, convert.uintVal);
 
 		return write + sizeof(convert);
+	}
+	char* c32(const std::complex<float>& val, char* write, char const* const end) {
+		assert((end - write) >= sizeof(val));
+
+		write = f32(*((float*)&val), write, end);
+		return f32(*((float*)&val + 1), write, end);
+	}
+	char* c64(const std::complex<double>& val, char* write, char const* const end) {
+		assert((end - write) >= sizeof(val));
+
+		write = f64(*((double*)&val), write, end);
+		return f64(*((double*)&val + 1), write, end);
 	}
 	char* ptr(const void* val, char* write, char const* const end) {
 		assert((end - write) >= sizeof(val));
@@ -257,6 +266,14 @@ namespace ez::serialize {
 		Converter64 convert;
 		convert.floatVal = val;
 		u64(convert.uintVal, buffer);
+	}
+	void c32(const std::complex<float>& val, std::string& buffer) {
+		f32(*((float*)&val), buffer);
+		f32(*((float*)&val+1), buffer);
+	}
+	void c64(const std::complex<double>& val, std::string& buffer) {
+		f64(*((double*)&val), buffer);
+		f64(*((double*)&val + 1), buffer);
 	}
 	void ptr(const void* val, std::string& buffer) {
 		ConverterPtr convert;

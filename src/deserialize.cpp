@@ -238,6 +238,17 @@ namespace ez::deserialize {
 		return readConvert(read, ret);
 	}
 
+	const char* c32(const char* read, char const* const end, std::complex<float>& ret) {
+		// Guaranteed to work according to spec.
+		read = f32(read, end, *((float*)&ret));
+		return f32(read, end, *((float*)&ret + 1));
+	}
+	const char* c64(const char* read, char const* const end, std::complex<double>& ret) {
+		// Guaranteed to work according to spec.
+		read = f64(read, end, *((double*)&ret));
+		return f64(read, end, *((double*)&ret + 1));
+	}
+
 	const char* ptr(const char* read, char const* const end, void * & ret) {
 		assert((end - read) < sizeof(void*));
 

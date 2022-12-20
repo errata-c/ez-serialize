@@ -4,6 +4,7 @@
 #include <string>
 #include <cinttypes>
 #include <type_traits>
+#include <complex>
 
 namespace ez::serialize {
 	char* i8(int8_t val, char* write, char const* const end);
@@ -16,6 +17,10 @@ namespace ez::serialize {
 	char* u64(uint64_t val, char* write, char const* const end);
 	char* f32(float val, char* write, char const* const end);
 	char* f64(double val, char* write, char const* const end);
+
+	char* c32(const std::complex<float>& val, char* write, char const* const end);
+	char* c64(const std::complex<double>& val, char* write, char const* const end);
+
 	char* ptr(const void* val, char* write, char const* const end);
 
 	char* string(const std::string& val, char* write, char const* const end);
@@ -36,8 +41,14 @@ namespace ez::serialize {
 	void u16(uint16_t val, std::string& buffer);
 	void u32(uint32_t val, std::string& buffer);
 	void u64(uint64_t val, std::string& buffer);
+
+
 	void f32(float val, std::string& buffer);
 	void f64(double val, std::string& buffer);
+
+	void c32(const std::complex<float>& val, std::string& buffer);
+	void c64(const std::complex<double>& val, std::string& buffer);
+
 	void ptr(const void* val, std::string& buffer);
 
 	void string(const std::string& val, std::string& buffer);
@@ -86,6 +97,9 @@ struct meta<INPUT_TYPE>: std::true_type {\
 
 	META_STRUCT(float, f32);
 	META_STRUCT(double, f64);
+
+	META_STRUCT(std::complex<float>, c32);
+	META_STRUCT(std::complex<double>, c64);
 
 #undef META_STRUCT
 }

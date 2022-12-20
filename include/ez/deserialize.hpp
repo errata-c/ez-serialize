@@ -1,6 +1,7 @@
 #pragma once
 #include <cinttypes>
 #include <string>
+#include <complex>
 
 namespace ez::deserialize {
 	const char* string(const char* read, char const* const end, std::string& ret);
@@ -23,6 +24,9 @@ namespace ez::deserialize {
 	const char* u16(const char* read, char const* const end, uint16_t & ret);
 	const char* u32(const char* read, char const* const end, uint32_t & ret);
 	const char* u64(const char* read, char const* const end, uint64_t & ret);
+
+	const char* c32(const char* read, char const* const end, std::complex<float>& ret);
+	const char* c64(const char* read, char const* const end, std::complex<double>& ret);
 	
 	// Only use this function if you know what your doing!
 	// Its a really bad idea to actually save a pointer to file.
@@ -59,6 +63,9 @@ static const char* func(const char* read, char const* const end, INPUT_TYPE& ret
 
 	META_STRUCT(float, f32);
 	META_STRUCT(double, f64);
+
+	META_STRUCT(std::complex<float>, c32);
+	META_STRUCT(std::complex<double>, c64);
 
 #undef META_STRUCT
 }
