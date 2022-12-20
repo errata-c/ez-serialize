@@ -54,7 +54,7 @@ namespace ez::deserialize {
 
 		ret.reserve(ret.size() + length);
 
-		const char* last = read + length;
+		const char* last = read + bytes;
 		while (read < last) {
 			uint16_t val;
 			read = u16(read, end, val);
@@ -72,7 +72,7 @@ namespace ez::deserialize {
 
 		ret.reserve(ret.size() + length);
 
-		const char* last = read + length;
+		const char* last = read + bytes;
 		while (read < last) {
 			uint32_t val;
 			read = u32(read, end, val);
@@ -90,7 +90,7 @@ namespace ez::deserialize {
 
 		ret.reserve(ret.size() + length);
 
-		const char* last = read + length;
+		const char* last = read + bytes;
 		while (read < last) {
 			uint64_t val;
 			read = u64(read, end, val);
@@ -109,7 +109,7 @@ namespace ez::deserialize {
 
 		ret.reserve(ret.size() + length);
 
-		const char* last = read + length;
+		const char* last = read + bytes;
 		while (read < last) {
 			int8_t val;
 			read = i8(read, end, val);
@@ -125,9 +125,9 @@ namespace ez::deserialize {
 
 		assert((end - read) >= bytes);
 
-		ret.reserve(ret.size() + length / 2);
+		ret.reserve(ret.size() + length);
 
-		const char* last = read + length;
+		const char* last = read + bytes;
 		while (read < last) {
 			int16_t val;
 			read = i16(read, end, val);
@@ -145,7 +145,7 @@ namespace ez::deserialize {
 
 		ret.reserve(ret.size() + length);
 
-		const char* last = read + length;
+		const char* last = read + bytes;
 		while (read < last) {
 			int32_t val;
 			read = i32(read, end, val);
@@ -161,9 +161,9 @@ namespace ez::deserialize {
 
 		assert((end - read) >= bytes);
 
-		ret.reserve(ret.size() + length / 8);
+		ret.reserve(ret.size() + length);
 
-		const char* last = read + length;
+		const char* last = read + bytes;
 		while (read < last) {
 			int64_t val;
 			read = i64(read, end, val);

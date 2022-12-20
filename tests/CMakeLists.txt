@@ -5,7 +5,11 @@ find_package(Catch2 CONFIG REQUIRED)
 
 include(Catch)
 
-add_executable(basic_test "basic/basic.cpp")
+add_executable(basic_test 
+	"basic/basic.cpp"
+	"basic/enumerators.cpp"
+	"basic/strings.cpp"
+)
 target_link_libraries(basic_test 
 PRIVATE 
 	ez::serialize 
