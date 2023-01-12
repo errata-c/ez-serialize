@@ -8,7 +8,8 @@
 static_assert(CHAR_BIT == 8, "Your system has a non-standard bitwidth for character types!");
 
 // Do we actually need this?
-static_assert(std::is_same_v<std::uint8_t, char> ||
+static_assert(
+	std::is_same_v<std::uint8_t, char> ||
 	std::is_same_v<std::uint8_t, unsigned char>,
 	"This library requires std::uint8_t to be implemented as char or unsigned char.");
 
@@ -172,91 +173,4 @@ namespace ez::deserialize {
 		
 		return read;
 	}
-
-	const char* f32(const char* read, char const* const end, float & ret) {
-		assert((end - read) >= sizeof(float));
-
-		Converter32 convert;
-		read = readConvert(read, convert.uintVal);
-		ret = convert.floatVal;
-
-		return read;
-	}
-	const char* f64(const char* read, char const* const end, double & ret) {
-		assert((end - read) >= sizeof(double));
-
-		uint64_t ival;
-		read = readConvert(read, ival);
-
-		Converter64 convert;
-		convert.uintVal = ival;
-		ret = convert.floatVal;
-
-		return read;
-	}
-
-	const char* i8(const char* read, char const* const end, int8_t & ret) {
-		assert((end - read) >= sizeof(int8_t));
-
-		ret = *read++;
-		return read;
-	}
-	const char* i16(const char* read, char const* const end, int16_t & ret) {
-		assert((end - read) >= sizeof(int16_t));
-
-		return readConvert(read, ret);
-	}
-	const char* i32(const char* read, char const* const end, int32_t & ret) {
-		assert((end - read) >= sizeof(int32_t));
-
-		return readConvert(read, ret);
-	}
-	const char* i64(const char* read, char const* const end, int64_t & ret) {
-		assert((end - read) >= sizeof(int64_t));
-
-		return readConvert(read, ret);
-	}
-
-	const char* u8(const char* read, char const* const end, uint8_t & ret) {
-		assert((end - read) >= sizeof(uint8_t));
-
-		return readConvert(read, ret);
-	}
-	const char* u16(const char* read, char const* const end, uint16_t & ret) {
-		assert((end - read) >= sizeof(uint16_t));
-
-		return readConvert(read, ret);
-	}
-	const char* u32(const char* read, char const* const end, uint32_t & ret) {
-		assert((end - read) >= sizeof(uint32_t));
-
-		return readConvert(read, ret);
-	}
-	const char* u64(const char* read, char const* const end, uint64_t & ret) {
-		assert((end - read) >= sizeof(uint64_t));
-
-		return readConvert(read, ret);
-	}
-
-	const char* c32(const char* read, char const* const end, std::complex<float>& ret) {
-		// Guaranteed to work according to spec.
-		read = f32(read, end, *((float*)&ret));
-		return f32(read, end, *((float*)&ret + 1));
-	}
-	const char* c64(const char* read, char const* const end, std::complex<double>& ret) {
-		// Guaranteed to work according to spec.
-		read = f64(read, end, *((double*)&ret));
-		return f64(read, end, *((double*)&ret + 1));
-	}
-
-	const char* ptr(const char* read, char const* const end, void * & ret) {
-		assert((end - read) < sizeof(void*));
-
-		ConverterPtr convert;
-		read = readConvert(read, convert.uintVal);
-
-		ret = convert.ptr;
-		return read;
-	}
-	
 }

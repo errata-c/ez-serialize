@@ -1,8 +1,6 @@
 #include <benchmark/benchmark.h>
 
-#include <ez/serialize.hpp>
-#include <ez/deserialize.hpp>
-#include <ez/intern/Convert.hpp>
+#include <ez/serialize/core.hpp>
 
 static void BM_DeserializeI32(benchmark::State& state) {
     std::size_t byteCount = state.range(0) * sizeof(int32_t);

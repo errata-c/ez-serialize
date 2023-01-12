@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 
 project(EZ_SERIALIZE
-	VERSION 0.5.1
+	VERSION 0.6.0
 	LANGUAGES CXX
 )
 
@@ -16,16 +16,12 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(ez-cmake)
 
-add_library(ez-serialize STATIC 
-	"src/serialize.cpp" 
-	"src/deserialize.cpp"
-)
-target_include_directories(ez-serialize PUBLIC 
+add_library(ez-serialize INTERFACE)
+target_include_directories(ez-serialize INTERFACE 
 	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>" 
 	"$<INSTALL_INTERFACE:include>"
 )
-target_compile_features(ez-serialize PUBLIC cxx_std_17)
-target_compile_options(ez-serialize PRIVATE "$<BUILD_INTERFACE:$<$<CXX_COMPILER_ID:MSVC>:/permissive->>")
+target_compile_features(ez-serialize INTERFACE cxx_std_17)
 
 set_target_properties(ez-serialize PROPERTIES EXPORT_NAME "serialize")
 
@@ -60,5 +56,6 @@ if(PROJECT_IS_TOP_LEVEL)
 		DESTINATION "${EZ_SERIALIZE_CONFIG_DIR}"
 		COMPATIBILITY "SameMajorVersion"
 		VERSION "${EZ_SERIALIZE_VERSION}"
+		ARCH_INDEPENDENT
 	)
 endif()

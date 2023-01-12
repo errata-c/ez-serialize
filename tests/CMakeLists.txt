@@ -8,7 +8,9 @@ include(Catch)
 add_executable(basic_test 
 	"basic/basic.cpp"
 	"basic/enumerators.cpp"
+	"basic/ranges.cpp"
 	"basic/strings.cpp"
+	"basic/types.cpp"
 )
 target_link_libraries(basic_test 
 PRIVATE 

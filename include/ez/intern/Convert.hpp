@@ -1,95 +1,97 @@
 #pragma once
+#include "TypeSupport.hpp"
+
 #include <cinttypes>
+#include <cstring>
 #include <string>
 
 namespace ez::intern {
-
-	union Converter32 {
-		int32_t intVal;
-		uint32_t uintVal;
-		float floatVal;
-		char data[4];
+	template<size_t N>
+	struct sized_uint {
+		using type = uint8_t;
 	};
 
-	union Converter64 {
-		int64_t intVal;
-		uint64_t uintVal;
-		double floatVal;
-		char data[8];
+	template<>
+	struct sized_uint<1> {
+		using type = uint8_t;
 	};
 
-	union ConverterPtr {
-		uintptr_t uintVal;
-		void* ptr;
-		const void* cptr;
-		char data[sizeof(void*)];
+	template<>
+	struct sized_uint<2> {
+		using type = uint16_t;
 	};
 
-	template<typename itype>
-	const char* readConvert(const char* read, itype& ret) {
-		ret = 0;
-		for (itype i = 0; i < (sizeof(itype) * 8); i += 8) {
-			// two convversions here are NECESSARY
-			// The first conversion prevents sign extension
-			// The second conversion stops integer promotion from happening
-			ret |= itype(uint8_t(*read++)) << i;
+	template<>
+	struct sized_uint<4> {
+		using type = uint32_t;
+	};
+
+	template<>
+	struct sized_uint<8> {
+		using type = uint64_t;
+	};
+
+	template<size_t N>
+	using sized_uint_t = typename sized_uint<N>::type;
+
+
+	template<typename T>
+	const char* read_convert(const char* read, T& ret) {
+		using utype = sized_uint_t<sizeof(T)>;
+		static constexpr utype offset = 8 * (sizeof(T) - 1);
+
+		utype val;
+		if constexpr (sizeof(T) == 1) {
+			val = utype(uint8_t(*read++));
 		}
+		else {
+			val = (utype(uint8_t(*read++)) << offset);
+			for (unsigned i = 1; i < sizeof(T); ++i) {
+				val = (val >> 8) | (utype(uint8_t(*read++)) << offset);
+			}
+		}
+		
+		// Safe type punning
+		std::memcpy(&ret, &val, sizeof(T));
+
 		return read;
 	}
-	template<typename itype>
-	char* writeConvert(char* write, itype value) {
-		// For some reason manually unrolling like this gets 2x speed improvement on benchmarks.
-		if constexpr (sizeof(itype) == 1) {
-			*write++ = value;
-		}
-		else if constexpr (sizeof(itype) == 2) {
-			*write++ = (value & 0xFF);
-			*write++ = ((value & 0xFF00) >> 8);
-		}
-		else if constexpr (sizeof(itype) == 4) {
-			*write++ = (value & 0xFF);
-			*write++ = ((value & 0xFF00) >> 8);
-			*write++ = ((value & 0xFF0000) >> 16);
-			*write++ = ((value & 0xFF000000) >> 24);
-		}
-		else {
-			*write++ = (value & 0xFF);
-			*write++ = ((value & 0xFF00) >> 8);
-			*write++ = ((value & 0xFF0000) >> 16);
-			*write++ = ((value & 0xFF000000) >> 24);
 
-			*write++ = ((value & 0xFF000000'00) >> 32);
-			*write++ = ((value & 0xFF000000'0000) >> 40);
-			*write++ = ((value & 0xFF000000'000000) >> 48);
-			*write++ = ((value & 0xFF000000'00000000) >> 56);
+	template<typename T>
+	char* write_convert(char* write, const T& value) {
+		using utype = sized_uint_t<sizeof(T)>;
+
+		utype val;
+
+		// Safe type punning
+		std::memcpy(&val, &value, sizeof(T));
+
+		*write++ = val;
+		if constexpr (sizeof(T) > 1) {
+			for (unsigned i = 1; i < sizeof(T); ++i) {
+				val = val >> 8;
+				*write++ = val;
+			}
 		}
+
 		return write;
 	}
-	template<typename itype>
-	void writeConvert(std::string& write, itype value) {
-		if constexpr (sizeof(itype) == 1) {
-			write.push_back(value);
-		}
-		else if constexpr (sizeof(itype) == 2) {
-			write.push_back(value & 0xFF);
-			write.push_back((value & 0xFF00) >> 8);
-		}
-		else if constexpr (sizeof(itype) == 4) {
-			write.push_back(value & 0xFF);
-			write.push_back((value & 0xFF00) >> 8);
-			write.push_back((value & 0xFF0000) >> 16);
-			write.push_back((value & 0xFF000000) >> 24);
-		}
-		else {
-			write.push_back(value & 0xFF);
-			write.push_back((value & 0xFF00) >> 8);
-			write.push_back((value & 0xFF0000) >> 16);
-			write.push_back((value & 0xFF000000) >> 24);
 
-			write.push_back((value & 0xFF000000'00) >> 32);
-			write.push_back((value & 0xFF000000'0000) >> 40);
-			write.push_back((value & 0xFF000000'000000) >> 48);
-			write.push_back((value & 0xFF000000'00000000) >> 56);
+	template<typename T>
+	void write_convert(std::string& write, const T & value) {
+		using utype = sized_uint_t<sizeof(T)>;
+
+		utype val;
+
+		// Safe type punning
+		std::memcpy(&val, &value, sizeof(T));
+
+		write.push_back(val);
+		if constexpr (sizeof(T) > 1) {
+			for (unsigned i = 1; i < sizeof(T); ++i) {
+				val = val >> 8;
+				write.push_back(val);
+			}
 		}
 	}
 }

@@ -2,8 +2,7 @@
 
 #include <type_traits>
 
-#include <ez/serialize.hpp>
-#include <ez/deserialize.hpp>
+#include <ez/serialize/core.hpp>
 
 #include <ez/intern/Convert.hpp>
 
